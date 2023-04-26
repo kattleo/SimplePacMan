@@ -1,3 +1,0 @@
-/home/leo/Schreibtisch/SimplePacMan/SimplePacMan/CMakeFiles/rebuild_cache.dir
-/home/leo/Schreibtisch/SimplePacMan/SimplePacMan/CMakeFiles/edit_cache.dir
-/home/leo/Schreibtisch/SimplePacMan/SimplePacMan/CMakeFiles/main.dir
