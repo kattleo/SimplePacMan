@@ -4,6 +4,9 @@
 void myflash(){
     
 }
+void main(){
+    
+}
 
 
 #include <stdio.h>
