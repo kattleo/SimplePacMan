@@ -1,0 +1,3 @@
+/Users/noahkasta/Documents/TH-Nbg/Pacman/SimplePacMan/CMakeFiles/main.dir
+/Users/noahkasta/Documents/TH-Nbg/Pacman/SimplePacMan/CMakeFiles/edit_cache.dir
+/Users/noahkasta/Documents/TH-Nbg/Pacman/SimplePacMan/CMakeFiles/rebuild_cache.dir
