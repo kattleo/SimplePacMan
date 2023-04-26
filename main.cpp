@@ -1,28 +1,24 @@
-#include <ncurses.h>
-#include <unistd.h>
 
-void myflash()
-{
-   int i;
-   const int n = 5;
-
-   for (i=0; i<n; i++)
-   {
-      flash();
-      refresh();
-      clear();
-      refresh();
-      sleep(1);
-   }
-}
+#include <stdio.h> 
+#include <unistd.h> 
+#include <ncurses.h> 
+#include <stdlib.h>
+#include "module.h"
 
 int main()
 {
-    initscr();
-    clear();
-    flash();
-    refresh();
-    myflash();
-    endwin();
-    return(0);
+   // init
+   initscr();
+   timeout(0);
+   curs_set(FALSE);
+   clear();
+   game_loop();
+   refresh();
+   endwin();
+
+   printf("time = %f\n", get_cur_time());
+
+   return(0);
+   
+>>>>>>> 59b75e9 (Main/module etc.)
 }
