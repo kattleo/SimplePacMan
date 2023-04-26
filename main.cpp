@@ -1,11 +1,28 @@
-//THIS IS A TEST
-#include <stdio.h>
+#include <ncurses.h>
+#include <unistd.h>
 
-void myflash(){
-    
+void myflash()
+{
+   int i;
+   const int n = 5;
+
+   for (i=0; i<n; i++)
+   {
+      flash();
+      refresh();
+      clear();
+      refresh();
+      sleep(1);
+   }
 }
 
-
-void main() {
-    printf("Hello World");
+int main()
+{
+    initscr();
+    clear();
+    flash();
+    refresh();
+    myflash();
+    endwin();
+    return(0);
 }
