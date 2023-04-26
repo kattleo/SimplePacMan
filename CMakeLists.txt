@@ -2,7 +2,7 @@ PROJECT(MyProject)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 # specify sources and headers
-SET(HDRS moudle.h ) # module headers go here (*.h)
+SET(HDRS module.h ) # module headers go here (*.h)
 SET(SRCS main.cpp module.cpp) # module implementations go here (*.cpp)
 
 # C++ standard
