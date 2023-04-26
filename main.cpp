@@ -20,5 +20,5 @@ int main()
 
    return(0);
    
->>>>>>> 59b75e9 (Main/module etc.)
+
 }
