@@ -38,6 +38,7 @@ void render_frame()
 #if 0
         // your own intro code
 #else
+        flash();
         char text[] = "PACMAN IS A GOOD GAME!!!"; // intro text to be rendered
         mvprintw((LINES-1)/2, (COLS-1)/2-strlen(text)/2, text); // render centered text
 #endif
