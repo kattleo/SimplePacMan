@@ -2,6 +2,7 @@
 #include <ncurses.h>
 #include <string.h>
 #include <unistd.h>
+#include "util.h"
 
 // game constant: frames per second
 static float fps = 10;
@@ -25,9 +26,6 @@ static GAME_STATE state = GAME_INTRO;
 // prototype of getter function
 double get_elapsed();
 
-// prototype of helper function
-void msleep(float ms);
-
 // render a single frame
 void render_frame()
 {
@@ -38,9 +36,9 @@ void render_frame()
     if (state == GAME_INTRO)
     {
 #if 0
-        ... // your own intro code
+        // your own intro code
 #else
-        char text[] = "Intro"; // intro text to be rendered
+        char text[] = "PACMAN IS A GOOD GAME!!!"; // intro text to be rendered
         mvprintw((LINES-1)/2, (COLS-1)/2-strlen(text)/2, text); // render centered text
 #endif
     }
@@ -107,11 +105,4 @@ void game_loop()
 double get_elapsed()
 {
     return(elapsed);
-}
-
-// sleep for a period of time given in milli seconds (ms)
-void msleep(float ms)
-{
-    int us = ms*1000; // micro secs
-    usleep(us);
 }
