@@ -17,7 +17,8 @@ static double elapsed = 0;
 enum GAME_STATE
 {
     GAME_INTRO = 0,
-    GAME_LOOP = 1
+    GAME_LOOP = 1,
+    GAME_OUTRO = 2
 };
 
 // game state: actual game phase
@@ -26,11 +27,13 @@ static GAME_STATE state = GAME_INTRO;
 // prototype of getter function
 double get_elapsed();
 
+int get_state();
+
 // render a single frame
 void render_frame()
 {
     // clear the actual frame
-    clear();
+    //clear();
 
     // render the actual frame depending on the state
     if (state == GAME_INTRO)
@@ -38,7 +41,6 @@ void render_frame()
 #if 0
         // your own intro code
 #else
-        flash();
         char text[] = "PACMAN IS A GOOD GAME!!!"; // intro text to be rendered
         mvprintw((LINES-1)/2, (COLS-1)/2-strlen(text)/2, text); // render centered text
 #endif
@@ -48,8 +50,13 @@ void render_frame()
 #if 0
         ... // your own game code
 #else
-        flash(); // just a flash as a starting point
+        char text[] = "YOU ARE NOW IN THE GAME!!!";
+        mvprintw((LINES-1)/2, (COLS-1)/2-strlen(text)/2, text);
 #endif
+    }
+    else if (state == GAME_OUTRO){
+        char text[] = "DUMMES OUTRO!!!!"; // intro text to be rendered
+        mvprintw((LINES-1)/2, (COLS-1)/2-strlen(text)/2, text); // render centered text
     }
 }
 
@@ -60,13 +67,17 @@ bool update_state()
     // state check cascade
     if (state == GAME_INTRO)
     {
-        if (get_elapsed() > 3)
+        if (get_elapsed() > 3){
             state = GAME_LOOP;
+            }
     }
     else if (state == GAME_LOOP)
     {
-        if (getch() == 'q')
-            return(true);
+        if (getch() == 'q'){
+            state = GAME_OUTRO;
+            msleep(5000);
+            return true;
+            }
     }
 
     return(false);
@@ -106,4 +117,13 @@ void game_loop()
 double get_elapsed()
 {
     return(elapsed);
+}
+
+int get_state(){
+    if(state == GAME_INTRO){
+        return 0;
+    }
+    else {
+        return 1;
+    }
 }
