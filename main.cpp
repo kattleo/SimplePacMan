@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
    // * since getmaxyx is a preprocessor macro
    getmaxyx(stdscr, max_y, max_x); // & not required
 
+   //INTRO start
    // print centered text with 5x3 grid font
    const char text[] = "PACMAN!";
    int tx = max_x/2;
@@ -50,6 +51,7 @@ int main(int argc, char *argv[])
    mvprintw(max_y-2, 1, help);
    use_color(); // default equals white
    use_attr_normal(); // disable all attributes
+   //INTRO end
 
    // draw horizontal line
    mvhline(max_y-3, 0, ACS_HLINE, max_x);
@@ -58,13 +60,24 @@ int main(int argc, char *argv[])
    beep();
 
    // play WAV sound
-   sound_play("/Users/noahkasta/Documents/TH-Nbg/Pacman/SimplePacMan/boing.wav");
+   
+
+
 
    // refresh screen
    refresh();
 
+
    // check for pressed keys
-   while (tolower(getch()) != 'q') msleep(1);
+   while(true){
+      char key = tolower(getch());
+   if(key == 'q') {
+      break;
+   } else if(key == 'z') {
+      sound_play("/Users/noahkasta/Documents/TH-Nbg/Pacman/SimplePacMan/boing.wav");
+   }
+      
+   }
 
    // exit sound
    sound_exit();

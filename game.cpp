@@ -58,6 +58,7 @@ void render_frame()
         char text[] = "DUMMES OUTRO!!!!"; // intro text to be rendered
         mvprintw((LINES-1)/2, (COLS-1)/2-strlen(text)/2, text); // render centered text
     }
+    refresh();
 }
 
 // update the game state
