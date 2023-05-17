@@ -2,7 +2,11 @@
 #include <ncurses.h>
 #include <string.h>
 #include <unistd.h>
-#include "util.h"
+#include "gfx/gfx.h"
+#include "gfx/gridfont.h"
+#include "gfx/sound.h"
+#include "game.h"
+#include "gfx/util.h"
 
 // game constant: frames per second
 static float fps = 10;
@@ -13,6 +17,7 @@ static int frame = 0;
 // game state: elapsed time
 static double elapsed = 0;
 
+static int max_x = 0, max_y = 0;
 // definition of game phases
 enum GAME_STATE
 {
@@ -36,14 +41,27 @@ void render_frame()
     //clear();
 
     // render the actual frame depending on the state
+    getmaxyx(stdscr, max_y, max_x);
+    mvhline(max_y-3, 0, ACS_HLINE, max_x);
     if (state == GAME_INTRO)
     {
-#if 0
-        // your own intro code
-#else
-        char text[] = "PACMAN IS A GOOD GAME!!!"; // intro text to be rendered
-        mvprintw((LINES-1)/2, (COLS-1)/2-strlen(text)/2, text); // render centered text
-#endif
+//INTRO start
+   // print centered text with 5x3 grid font
+   const char text[] = "PACMAN!";
+   int tx = max_x/2;
+   int ty = (max_y-4)/2+1;
+   init_grid_font();
+   draw_grid_text(ty - get_grid_char_lines()/2, tx - strlen(text)*get_grid_char_cols()/2, text);
+
+   // print help text
+   const char help[] = "press q to quit!";
+   use_attr_bold(); // enable bold attribute
+   use_attr_blink(); // enable blink attribute
+   use_color(2); // index 2 equals red
+   mvprintw(max_y-2, 1, help);
+   use_color(); // default equals white
+   use_attr_normal(); // disable all attributes
+   //INTRO end
     }
     else if (state == GAME_LOOP)
     {
