@@ -1,16 +1,31 @@
-PROJECT(MyProject)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+PROJECT(ASCII_GFX_library)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)
 
 # specify sources and headers
-SET(HDRS game.h util.h) # module headers go here (*.h)
-SET(SRCS main.cpp game.cpp util.cpp) # module implementations go here (*.cpp)
+SET(HDRS
+   # module headers go here (*.h)
+   )
+SET(SRCS
+   # module implementations go here (*.cpp)
+   main.cpp
+   )
 
+# specify source directories
+INCLUDE_DIRECTORIES(.)
 
 # C++ standard
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++98 -Wall -Werror")
 IF (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.2)
    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wvla")
 ENDIF (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.2)
+
+# default C++ compiler definitions
+IF (NOT CMAKE_BUILD_TYPE)
+   IF (UNIX)
+      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O")
+   ENDIF (UNIX)
+ENDIF (NOT CMAKE_BUILD_TYPE)
+SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
 # extend cmake module path
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMakeModules)
@@ -48,11 +63,24 @@ ENDIF (SDL2_MIXER_FOUND)
 # SDL check
 IF ((SDL_FOUND AND SDL_MIXER_FOUND) OR (SDL2_FOUND AND SDL2_MIXER_FOUND))
    ADD_DEFINITIONS("-DHAVE_SDL")
-   MESSAGE(STATUS "SDL found")
+   IF (SDL_FOUND)
+      MESSAGE(STATUS "SDL found")
+   ELSE (SDL_FOUND)
+      MESSAGE(STATUS "SDL2 found")
+   ENDIF (SDL_FOUND)
+ELSE ((SDL_FOUND AND SDL_MIXER_FOUND) OR (SDL2_FOUND AND SDL2_MIXER_FOUND))
+   MESSAGE(STATUS "SDL not found")
 ENDIF ((SDL_FOUND AND SDL_MIXER_FOUND) OR (SDL2_FOUND AND SDL2_MIXER_FOUND))
+
+# ASCII GFX library
+FIND_PATH(GFXLIB_PATH ASCII-GFX.cmake PATHS ${CMAKE_CURRENT_LIST_DIR} PATH_SUFFIXES "ascii-gfx")
+INCLUDE(${GFXLIB_PATH}/ASCII-GFX.cmake)
 
 # build and link executable
 ADD_EXECUTABLE(main ${HDRS} ${SRCS}) # compile main executable
+TARGET_LINK_LIBRARIES(main
+   ${GFXLIB_NAME} # link with ascii gfx lib
+   )
 TARGET_LINK_LIBRARIES(main
    ${CURSES_LIBRARIES} # link with NCurses
    )

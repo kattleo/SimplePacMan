@@ -1,0 +1,4 @@
+/Users/noahkasta/Documents/TH-Nbg/Pacman/SimplePacMan/mygame/CMakeFiles/asciigfx.dir
+/Users/noahkasta/Documents/TH-Nbg/Pacman/SimplePacMan/mygame/CMakeFiles/main.dir
+/Users/noahkasta/Documents/TH-Nbg/Pacman/SimplePacMan/mygame/CMakeFiles/edit_cache.dir
+/Users/noahkasta/Documents/TH-Nbg/Pacman/SimplePacMan/mygame/CMakeFiles/rebuild_cache.dir

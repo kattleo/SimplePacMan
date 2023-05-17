@@ -1,0 +1,38 @@
+# Doxyfile
+
+PROJECT_NAME           = ASCII-GFX
+PROJECT_NUMBER         = 1.2
+
+INPUT                  = README.md . gfx
+USE_MDFILE_AS_MAINPAGE = README.md
+
+OUTPUT_DIRECTORY       = docs
+OUTPUT_LANGUAGE        = English
+CREATE_SUBDIRS         = NO
+
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+HIDE_UNDOC_CLASSES     = YES
+HIDE_UNDOC_MEMBERS     = YES
+INLINE_INHERITED_MEMB  = YES
+JAVADOC_AUTOBRIEF      = YES
+
+QUIET                  = YES
+WARNINGS               = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_IF_UNDOCUMENTED   = NO
+WARN_NO_PARAMDOC       = NO
+
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+HTML_FILE_EXTENSION    = .html
+
+GENERATE_LATEX         = NO
+GENERATE_RTF           = NO
+GENERATE_MAN           = NO
+GENERATE_XML           = NO
+
+CLASS_DIAGRAMS         = YES
+COLLABORATION_GRAPH    = NO
+INCLUDE_GRAPH          = NO
