@@ -7,6 +7,8 @@
 #include "gfx/sound.h"
 #include "game.h"
 #include "gfx/util.h"
+#include "gfx/scrollarea.h"
+#include "gfx/gridarea.h"
 
 // game constant: frames per second
 static float fps = 10;
@@ -68,8 +70,31 @@ void render_frame()
     else if (state == GAME_LOOP)
     {
         clear();
-        char text[] = "YOU ARE NOW IN THE GAME!!!";
-        mvprintw((LINES-1)/2, (COLS-1)/2-strlen(text)/2, text);
+
+        // game area setup
+        int sx = 60, sy = 30;
+        set_area_size(sx, sy);
+        set_window_size(COLS, LINES);
+
+        // render game area
+        render_frame(0, 0, sx-1, sy-1);
+        render_text_format(2, sy-6, "window area:\ncols=%d lines=%d", COLS, LINES);
+        render_text_format(2, sy-3, "scrollable area:\ncols=%d lines=%d", sx, sy);
+        set_cell_offset(6, 3);
+        set_cell_offset();
+        refresh();
+        // // game loop
+        // do
+        // {
+        //     // scroll game area
+        //     center_window(sx/2, sy/2);
+
+        //     // refresh screen
+        //     refresh();
+
+        //     // wait until next frame
+        //     msleep(100); // 100 ms = 10 fps
+        // }
     }
     else if (state == GAME_OUTRO){
         clear();
