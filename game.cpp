@@ -47,56 +47,66 @@ void render_frame()
     {
 //INTRO start
    // print centered text with 5x3 grid font
-   const char text[] = "PACMAN!";
-   int tx = max_x/2;
-   int ty = (max_y-4)/2+1;
-   init_grid_font();
-   draw_grid_text(ty - get_grid_char_lines()/2, tx - strlen(text)*get_grid_char_cols()/2, text);
+        const char text[] = "PACMAN!";
+        int tx = max_x/2;
+        int ty = (max_y-4)/2+1;
+        init_grid_font();
+        draw_grid_text(ty - get_grid_char_lines()/2, tx - strlen(text)*get_grid_char_cols()/2, text);
 
-   // print help text
-   const char help[] = "press q to quit!";
-   use_attr_bold(); // enable bold attribute
-   use_attr_blink(); // enable blink attribute
-   use_color(2); // index 2 equals red
-   mvprintw(max_y-2, 1, help);
-   use_color(); // default equals white
-   use_attr_normal(); // disable all attributes
-   //INTRO end
+        // print help text
+        const char help[] = "press q to quit!";
+        const char starting[] = "press s to start!";
+        use_attr_bold(); // enable bold attribute
+        use_attr_blink(); // enable blink attribute
+        use_color(2); // index 2 equals red
+        mvprintw(max_y-2, 1, help);
+        mvprintw(max_y-2, max_x - 20, starting);
+        use_color(); // default equals white
+        use_attr_normal(); // disable all attributes
+        //INTRO end
     }
     else if (state == GAME_LOOP)
     {
-#if 0
-        ... // your own game code
-#else
+        clear();
         char text[] = "YOU ARE NOW IN THE GAME!!!";
         mvprintw((LINES-1)/2, (COLS-1)/2-strlen(text)/2, text);
-#endif
     }
     else if (state == GAME_OUTRO){
-        char text[] = "DUMMES OUTRO!!!!"; // intro text to be rendered
+        clear();
+        char text[] = "BYE BYE!!!!"; // intro text to be rendered
         mvprintw((LINES-1)/2, (COLS-1)/2-strlen(text)/2, text); // render centered text
+
     }
+
     refresh();
 }
 
 // update the game state
 // * 'q' quits the game
+
 bool update_state()
-{
+{   
+    static float outtime = 0;
+    char c = getch();
     // state check cascade
     if (state == GAME_INTRO)
     {
-        if (get_elapsed() > 3){
+        
+        if (c == 's'){
             state = GAME_LOOP;
             }
     }
     else if (state == GAME_LOOP)
     {
-        if (getch() == 'q'){
+        if (c == 'q'){
             state = GAME_OUTRO;
-            msleep(5000);
-            return true;
+            outtime = get_elapsed() + 3;
             }
+    }
+    else if (state == GAME_OUTRO){
+        if(get_elapsed() > outtime){
+            return true;
+        }
     }
 
     return(false);
@@ -116,6 +126,7 @@ void game_loop()
     {
         // render a single frame
         render_frame();
+        refresh();
 
         // update frame counter and elapsed time
         frame++;

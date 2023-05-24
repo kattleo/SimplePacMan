@@ -2,12 +2,12 @@ PROJECT(ASCII_GFX_library)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)
 
 # specify sources and headers
-SET(HDRS
+SET(HDRS game.h util.h
    # module headers go here (*.h)
    )
 SET(SRCS
    # module implementations go here (*.cpp)
-   main.cpp
+   main.cpp game.cpp util.h
    )
 
 # specify source directories
