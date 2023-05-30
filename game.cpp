@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <ncurses.h>
-#include <string.h>
-#include <unistd.h>
 #include "gfx/gfx.h"
 #include "gfx/gridfont.h"
 #include "gfx/sound.h"
@@ -9,6 +5,14 @@
 #include "gfx/util.h"
 #include "gfx/scrollarea.h"
 #include "gfx/gridarea.h"
+
+
+char c;
+
+double pacman_x;
+double pacman_y;
+static double pacman_vel_x = 0.5;
+static double pacman_vel_y = 0.5;
 
 // game constant: frames per second
 static float fps = 10;
@@ -65,6 +69,11 @@ void render_frame()
         mvprintw(max_y-2, max_x - 20, starting);
         use_color(); // default equals white
         use_attr_normal(); // disable all attributes
+
+        // init PacMan starting point
+        pacman_x = COLS/2;
+        pacman_y = LINES/2;
+
         //INTRO end
     }
     else if (state == GAME_LOOP)
@@ -83,6 +92,11 @@ void render_frame()
         set_cell_offset(6, 3);
         set_cell_offset();
         refresh();
+
+        // Moving PacMan
+        move_pacman();
+        
+
         // // game loop
         // do
         // {
@@ -106,13 +120,33 @@ void render_frame()
     refresh();
 }
 
+void move_pacman() {
+    mvaddstr(pacman_y, pacman_x, "O");
+
+    switch(c) {
+        case 'w':
+            pacman_y -= pacman_vel_y;
+            break;
+        case 'a':
+            pacman_x -= pacman_vel_x;
+            break;
+        case 's':
+            pacman_y += pacman_vel_y;
+            break;
+        case 'd':
+            pacman_x += pacman_vel_x;
+            break;
+    }
+    
+    
+}
+
 // update the game state
 // * 'q' quits the game
 
 bool update_state()
 {   
     static float outtime = 0;
-    char c = getch();
     // state check cascade
     if (state == GAME_INTRO)
     {
@@ -120,9 +154,11 @@ bool update_state()
         if (c == 's'){
             state = GAME_LOOP;
             }
+        
     }
     else if (state == GAME_LOOP)
-    {
+    {   
+        
         if (c == 'q'){
             state = GAME_OUTRO;
             outtime = get_elapsed() + 3;
@@ -157,6 +193,7 @@ void game_loop()
         frame++;
         elapsed += dt;
 
+        c = getch();
         // update the game state
         bool finish = update_state();
 
