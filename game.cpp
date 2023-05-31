@@ -61,7 +61,8 @@ void game_init() {
     set_area_size(sx, sy);
     set_window_size(COLS, LINES);
     render_frame(0, 0, sx-1, sy-1);
-    
+    pacman_x = 0;
+    pacman_y = 0;
 }
 
 // render a single frame
@@ -90,8 +91,7 @@ void render_frame()
         use_attr_normal(); // disable all attributes
 
         // init PacMan starting point
-        pacman_x = COLS/2;
-        pacman_y = LINES/2;
+        
 
         //INTRO end
     }
