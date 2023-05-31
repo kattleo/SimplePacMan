@@ -122,7 +122,6 @@ void render_frame()
 
 void move_pacman() {
     mvaddstr(pacman_y, pacman_x, "O");
-
     switch(c) {
         case 'w':
             pacman_vel_y = -1;
