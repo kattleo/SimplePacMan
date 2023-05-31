@@ -7,12 +7,12 @@
 #include "gfx/gridarea.h"
 
 
-char c;
+static char c;
 
-double pacman_x;
-double pacman_y;
-static double pacman_vel_x = 0.5;
-static double pacman_vel_y = 0.5;
+static double pacman_x;
+static double pacman_y;
+static double pacman_vel_x = 0.2;
+static double pacman_vel_y = 0.2;
 
 // game constant: frames per second
 static float fps = 10;
@@ -125,16 +125,20 @@ void move_pacman() {
 
     switch(c) {
         case 'w':
-            pacman_y -= pacman_vel_y;
+            pacman_vel_y = -1;
+            pacman_vel_x = 0;
             break;
         case 'a':
-            pacman_x -= pacman_vel_x;
+            pacman_vel_y = 0;
+            pacman_vel_x = -1;
             break;
         case 's':
-            pacman_y += pacman_vel_y;
+            pacman_vel_y = 1;
+            pacman_vel_x = 0;
             break;
         case 'd':
-            pacman_x += pacman_vel_x;
+            pacman_vel_y = 0;
+            pacman_vel_x = 1;
             break;
     }
     
@@ -158,7 +162,8 @@ bool update_state()
     }
     else if (state == GAME_LOOP)
     {   
-        
+        pacman_x += pacman_vel_x;
+        pacman_y += pacman_vel_y;
         if (c == 'q'){
             state = GAME_OUTRO;
             outtime = get_elapsed() + 3;
