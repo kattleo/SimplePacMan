@@ -9,8 +9,13 @@
 
 static char c;
 
+static int sx = 60;
+static int sy = 30;
+
 static double pacman_x;
 static double pacman_y;
+static double pacman_previous_x;
+static double pacman_previous_y;
 static double pacman_vel_x = 0.2;
 static double pacman_vel_y = 0.2;
 
@@ -40,22 +45,27 @@ double get_elapsed();
 
 int get_state();
 
+void move_pacman();
+
+void game_init() {
+    sx = 60, sy = 30;
+    set_area_size(sx, sy);
+    set_window_size(COLS, LINES);
+    render_frame(0, 0, sx-1, sy-1);
+    
+}
+
 // render a single frame
 void render_frame()
 {
-    // clear the actual frame
-    //clear();
-
     // render the actual frame depending on the state
-    getmaxyx(stdscr, max_y, max_x);
-    mvhline(max_y-3, 0, ACS_HLINE, max_x);
     if (state == GAME_INTRO)
     {
 //INTRO start
    // print centered text with 5x3 grid font
         const char text[] = "PACMAN!";
-        int tx = max_x/2;
-        int ty = (max_y-4)/2+1;
+        int tx = COLS/2;
+        int ty = LINES/2;
         init_grid_font();
         draw_grid_text(ty - get_grid_char_lines()/2, tx - strlen(text)*get_grid_char_cols()/2, text);
 
@@ -78,24 +88,17 @@ void render_frame()
     }
     else if (state == GAME_LOOP)
     {
-        clear();
-
-        // game area setup
-        int sx = 60, sy = 30;
-        set_area_size(sx, sy);
-        set_window_size(COLS, LINES);
-
         // render game area
-        render_frame(0, 0, sx-1, sy-1);
-        render_text_format(2, sy-6, "window area:\ncols=%d lines=%d", COLS, LINES);
-        render_text_format(2, sy-3, "scrollable area:\ncols=%d lines=%d", sx, sy);
-        set_cell_offset(6, 3);
-        set_cell_offset();
+        center_window(sx / 2, sy / 2);
         refresh();
+
+        set_cell(20, 20, 'P');
+        set_cell(20, 21, 'P');
+        set_cell(20, 22, 'P');
+        set_cell(20, 23, 'P');
 
         // Moving PacMan
         move_pacman();
-        
 
         // // game loop
         // do
@@ -120,8 +123,12 @@ void render_frame()
     refresh();
 }
 
+
+
 void move_pacman() {
-    mvaddstr(pacman_y, pacman_x, "O");
+    set_cell(pacman_previous_x, pacman_previous_y, ' ');
+    set_cell(pacman_x, pacman_y, 'a');
+
     switch(c) {
         case 'w':
             pacman_vel_y = -1;
@@ -156,13 +163,17 @@ bool update_state()
         
         if (c == 's'){
             state = GAME_LOOP;
+            clear();
             }
         
     }
     else if (state == GAME_LOOP)
     {   
+        pacman_previous_x = pacman_x;
+        pacman_previous_y = pacman_y;
         pacman_x += pacman_vel_x;
         pacman_y += pacman_vel_y;
+
         if (c == 'q'){
             state = GAME_OUTRO;
             outtime = get_elapsed() + 3;

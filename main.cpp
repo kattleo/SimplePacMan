@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
    // init sound
    sound_init();
 
+   game_init();
 
    // refresh screen
    refresh();
