@@ -16,8 +16,15 @@ static double pacman_x;
 static double pacman_y;
 static double pacman_previous_x;
 static double pacman_previous_y;
-static double pacman_vel_x = 0.2;
-static double pacman_vel_y = 0.2;
+static double pacman_vel_x = 0.1;
+static double pacman_vel_y = 0.1;
+
+static double ghost_x;
+static double ghost_y;
+static double ghost_previous_x;
+static double ghost_previous_y;
+static double ghost_vel_x = 0.1;
+static double ghost_vel_y = 0.1;
 
 // game constant: frames per second
 static float fps = 10;
@@ -46,6 +53,8 @@ double get_elapsed();
 int get_state();
 
 void move_pacman();
+
+void move_ghost();
 
 void game_init() {
     sx = 60, sy = 30;
@@ -100,6 +109,9 @@ void render_frame()
         // Moving PacMan
         move_pacman();
 
+        //Moving Ghost
+        move_ghost();
+
         // // game loop
         // do
         // {
@@ -150,6 +162,17 @@ void move_pacman() {
     
     
 }
+
+void move_ghost() {
+    set_cell(ghost_previous_x, ghost_previous_y, ' ');
+    set_cell(ghost_x, ghost_y, 'G');
+    ghost_previous_x = ghost_x;
+    ghost_previous_y = ghost_y;
+    
+    ghost_x += ghost_vel_x;
+    ghost_y += ghost_vel_y;
+}
+
 
 // update the game state
 // * 'q' quits the game
