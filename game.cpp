@@ -69,7 +69,7 @@ void render_frame()
     {
 //INTRO start
    // print centered text with 5x3 grid font
-        const char text[] = "PACMAN!";
+        const char text[] = "PACMAN";
         int tx = COLS/2;
         int ty = LINES/2;
         init_grid_font();
@@ -87,8 +87,7 @@ void render_frame()
         use_attr_normal(); // disable all attributes
 
         // init PacMan starting point
-        
-
+    
         //INTRO end
     }
     else if (state == GAME_LOOP)
@@ -123,8 +122,11 @@ void render_frame()
     }
     else if (state == GAME_OUTRO){
         clear();
-        char text[] = "BYE BYE!!!!"; // intro text to be rendered
-        mvprintw((LINES-1)/2, (COLS-1)/2-strlen(text)/2, text); // render centered text
+        const char text[] = "BYE BYE!";
+        int tx = COLS/2;
+        int ty = LINES/2;
+        init_grid_font();
+        draw_grid_text(ty - get_grid_char_lines()/2, tx - strlen(text)*get_grid_char_cols()/2, text);
 
     }
 
@@ -138,7 +140,7 @@ void move_pacman() {
     pacman_y += pacman_vel_y;
 
     set_cell(pacman_x - pacman_vel_x, pacman_y - pacman_vel_y, ' ');
-    set_cell(pacman_x, pacman_y, 'a');
+    set_cell(pacman_x, pacman_y, 'c');
 
     switch(c) {
         case 'w':
