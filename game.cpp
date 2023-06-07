@@ -14,13 +14,13 @@ static int sy = 30;
 
 static double pacman_x;
 static double pacman_y;
-static double pacman_vel_x = 0.1;
-static double pacman_vel_y = 0.1;
+static double pacman_vel_x;
+static double pacman_vel_y;
 
 static double ghost_x;
 static double ghost_y;
-static double ghost_vel_x = 0.1;
-static double ghost_vel_y = 0.1;
+static double ghost_vel_x = 1;
+static double ghost_vel_y = 0;
 
 // game constant: frames per second
 static float fps = 10;
@@ -53,12 +53,17 @@ void move_pacman();
 void move_ghost();
 
 void game_init() {
-    sx = 60, sy = 30;
+    sx = 80, sy = 40;
     set_area_size(sx, sy);
     set_window_size(COLS, LINES);
     render_frame(0, 0, sx-1, sy-1);
-    pacman_x = 0;
-    pacman_y = 0;
+
+    // init PacMan starting point
+    pacman_x = sx/2;
+    pacman_y = sy/2;
+
+    ghost_x = 2;
+    ghost_y = 2;
 }
 
 // render a single frame
@@ -86,9 +91,6 @@ void render_frame()
         use_color(); // default equals white
         use_attr_normal(); // disable all attributes
 
-        // init PacMan starting point
-        
-
         //INTRO end
     }
     else if (state == GAME_LOOP)
@@ -107,39 +109,26 @@ void render_frame()
 
         //Moving Ghost
         move_ghost();
-
-        // // game loop
-        // do
-        // {
-        //     // scroll game area
-        //     center_window(sx/2, sy/2);
-
-        //     // refresh screen
-        //     refresh();
-
-        //     // wait until next frame
-        //     msleep(100); // 100 ms = 10 fps
-        // }
     }
     else if (state == GAME_OUTRO){
         clear();
         char text[] = "BYE BYE!!!!"; // intro text to be rendered
         mvprintw((LINES-1)/2, (COLS-1)/2-strlen(text)/2, text); // render centered text
-
     }
-
     refresh();
 }
 
-
-
 void move_pacman() {
+    if(get_cell(pacman_x + pacman_vel_x, pacman_y + pacman_vel_y) != ' ') {
+        pacman_vel_x = -pacman_vel_x;
+        pacman_vel_y = -pacman_vel_y;
+    }
     pacman_x += pacman_vel_x;
     pacman_y += pacman_vel_y;
 
     set_cell(pacman_x - pacman_vel_x, pacman_y - pacman_vel_y, ' ');
     set_cell(pacman_x, pacman_y, 'a');
-
+    
     switch(c) {
         case 'w':
             pacman_vel_y = -1;
@@ -158,22 +147,41 @@ void move_pacman() {
             pacman_vel_x = 1;
             break;
     }
-    
-    
 }
 
 void move_ghost() {
-    set_cell(ghost_x - ghost_vel_x, ghost_y - ghost_vel_y, ' ');
-    set_cell(ghost_x, ghost_y, 'G');
+    if(get_cell(ghost_x + ghost_vel_x, ghost_y + ghost_vel_y) != ' ') {
+        if(ghost_vel_x != 0) {
+            ghost_vel_x = 0;
+        float random = rnd();
+        if(random < 0.5) {
+            ghost_vel_y = -1;
+        } else {
+            ghost_vel_y = 1;
+        }  
+        } else if(ghost_vel_y != 0) {
+            ghost_vel_y = 0;
+        float random = rnd();
+        if(random < 0.5) {
+            ghost_vel_x = -1;
+        } else {
+            ghost_vel_x = 1;
+        }  
+        }
+    }
     
+
     ghost_x += ghost_vel_x;
     ghost_y += ghost_vel_y;
+
+    set_cell(ghost_x - ghost_vel_x, ghost_y - ghost_vel_y, ' ');
+    set_cell(ghost_x, ghost_y, 'G');
+
 }
 
 
 // update the game state
 // * 'q' quits the game
-
 bool update_state()
 {   
     static float outtime = 0;
@@ -200,7 +208,6 @@ bool update_state()
             return true;
         }
     }
-
     return(false);
 }
 
