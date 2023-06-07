@@ -53,7 +53,7 @@ void move_pacman();
 void move_ghost();
 
 void game_init() {
-    sx = 60, sy = 30;
+    sx = 70, sy = 40;
     set_area_size(sx, sy);
     set_window_size(COLS, LINES);
     render_frame(0, 0, sx-1, sy-1);
@@ -107,18 +107,6 @@ void render_frame()
         //Moving Ghost
         move_ghost();
 
-        // // game loop
-        // do
-        // {
-        //     // scroll game area
-        //     center_window(sx/2, sy/2);
-
-        //     // refresh screen
-        //     refresh();
-
-        //     // wait until next frame
-        //     msleep(100); // 100 ms = 10 fps
-        // }
     }
     else if (state == GAME_OUTRO){
         clear();
@@ -160,8 +148,6 @@ void move_pacman() {
             pacman_vel_x = 1;
             break;
     }
-    
-    
 }
 
 void move_ghost() {
