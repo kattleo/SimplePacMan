@@ -14,15 +14,11 @@ static int sy = 30;
 
 static double pacman_x;
 static double pacman_y;
-static double pacman_previous_x;
-static double pacman_previous_y;
 static double pacman_vel_x = 0.1;
 static double pacman_vel_y = 0.1;
 
 static double ghost_x;
 static double ghost_y;
-static double ghost_previous_x;
-static double ghost_previous_y;
 static double ghost_vel_x = 0.1;
 static double ghost_vel_y = 0.1;
 
@@ -138,7 +134,10 @@ void render_frame()
 
 
 void move_pacman() {
-    set_cell(pacman_previous_x, pacman_previous_y, ' ');
+    pacman_x += pacman_vel_x;
+    pacman_y += pacman_vel_y;
+
+    set_cell(pacman_x - pacman_vel_x, pacman_y - pacman_vel_y, ' ');
     set_cell(pacman_x, pacman_y, 'a');
 
     switch(c) {
@@ -164,10 +163,8 @@ void move_pacman() {
 }
 
 void move_ghost() {
-    set_cell(ghost_previous_x, ghost_previous_y, ' ');
+    set_cell(ghost_x - ghost_vel_x, ghost_y - ghost_vel_y, ' ');
     set_cell(ghost_x, ghost_y, 'G');
-    ghost_previous_x = ghost_x;
-    ghost_previous_y = ghost_y;
     
     ghost_x += ghost_vel_x;
     ghost_y += ghost_vel_y;
@@ -192,11 +189,7 @@ bool update_state()
     }
     else if (state == GAME_LOOP)
     {   
-        pacman_previous_x = pacman_x;
-        pacman_previous_y = pacman_y;
-        pacman_x += pacman_vel_x;
-        pacman_y += pacman_vel_y;
-
+        
         if (c == 'q'){
             state = GAME_OUTRO;
             outtime = get_elapsed() + 3;
