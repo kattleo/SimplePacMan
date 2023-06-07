@@ -11,11 +11,7 @@
 #include "scrollarea.h"
 
 // sleep for a period of time given in milli seconds
-void msleep(float ms)
-{
-   int us = ms*1000; // micro secs
-   usleep(us);
-}
+
 
 // generate a random float number in the range [0,1[
 float rnd()

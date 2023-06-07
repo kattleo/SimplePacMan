@@ -5,6 +5,7 @@
 #include "gfx/util.h"
 #include "gfx/scrollarea.h"
 #include "gfx/gridarea.h"
+#include "util.h"
 
 
 static char c;
@@ -56,7 +57,11 @@ void game_init() {
     sx = 80, sy = 40;
     set_area_size(sx, sy);
     set_window_size(COLS, LINES);
+
+    init_font();
+
     render_frame(0, 0, sx-1, sy-1);
+
 
     // init PacMan starting point
     pacman_x = sx/2;
@@ -98,11 +103,6 @@ void render_frame()
         // render game area
         center_window(sx / 2, sy / 2);
         refresh();
-
-        set_cell(20, 20, 'P');
-        set_cell(20, 21, 'P');
-        set_cell(20, 22, 'P');
-        set_cell(20, 23, 'P');
 
         // Moving PacMan
         move_pacman();
@@ -180,7 +180,7 @@ void move_ghost() {
     ghost_y += ghost_vel_y;
 
     set_cell(ghost_x - ghost_vel_x, ghost_y - ghost_vel_y, ' ');
-    set_cell(ghost_x, ghost_y, 'G');
+    set_cell(ghost_x, ghost_y, 'g');
 
 }
 

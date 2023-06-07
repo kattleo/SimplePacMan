@@ -7,7 +7,6 @@
 #include "math2d.h"
 
 //! sleep for a period of time given in milli seconds
-void msleep(float ms);
 
 //! generate a random float number in the range [0,1[
 float rnd();
