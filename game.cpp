@@ -57,6 +57,10 @@ void game_init() {
     set_area_size(sx, sy);
     set_window_size(COLS, LINES);
 
+    //filling background
+    set_grid_size(sx,sy);
+
+
     init_font();
     init_grid_font();
 
@@ -99,6 +103,7 @@ void game_init() {
 
     ghost_x = 2;
     ghost_y = 2;
+
 }
 
 // render a single frame
@@ -133,6 +138,11 @@ void render_frame()
         // render game area
         center_window(sx / 2, sy / 2);
         render_frame(0, 0, sx-1, sy-1);
+
+        // //flood fil
+        // redraw_grid_window(sx/2, sy/2);
+        // flood_fill_grid(0, 0, 'o');
+
         refresh();
 
         // Moving PacMan
@@ -257,7 +267,7 @@ void game_loop()
 {
     float dt = 1/fps; // frame duration
     float ms = dt*1000; // milli seconds
-
+    
     // the main game loop
     while (true)
     {
