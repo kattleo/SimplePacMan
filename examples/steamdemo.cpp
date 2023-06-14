@@ -6,7 +6,7 @@
 #include "math2d.h"
 
 // the size of the game area
-static int ax = 300, ay = 50;
+static int ax = 300, ay = 60;
 
 // random integer value in the range [from, to]
 int rand_range(int from, int to)
@@ -88,26 +88,72 @@ int main(void)
 {
    // init ASCII gfx
    init_gfx();
+   init_color();
 
    // game area setup
    set_area_size(ax, ay);
    set_window_size(COLS, LINES);
 
    // render locomotive into game area
-   fill_cell_area(ax/2-20, ay/2-5, 30, 10);
-   fill_cell_area(ax/2+7, ay/2-10, 13, 15);
-   fill_cell_area(ax/2+12, ay/2-9, 7, 4, ' ');
-   fill_cell_area(ax/2-17, ay/2-9, 4, 4);
-   render_ellipse(ax/2-10, ay/2+6, 4, 3, '*');
-   render_ellipse(ax/2+10, ay/2+6, 4, 3, '*');
-   render_ellipse(ax/2, ay/2+6, 4, 3, '*');
+   fill_cell_area(ax/2-20, ay/2-5, 30, 10, ' ' | A_REVERSE); // steam boiler
+   fill_cell_area(ax/2-20, ay/2-5, 10, 10, ' ' | A_REVERSE | COLOR_PAIR(4)); // boiler front
+   fill_cell_area(ax/2+7, ay/2-10, 13, 15); // driver's cab
+   fill_cell_area(ax/2+12, ay/2-9, 7, 4, ' '); // cab window
+   fill_cell_area(ax/2-17, ay/2-9, 4, 4); // smoke stack
+   render_line(ax/2-18, ay/2-9, ax/2-13, ay/2-9, ACS_CKBOARD); // smoke stack end
+   render_ellipse(ax/2-10, ay/2+6, 4, 3, '*' | COLOR_PAIR(2)); // left wheel
+   render_ellipse(ax/2+10, ay/2+6, 4, 3, '*' | COLOR_PAIR(2)); // right wheel
+   render_ellipse(ax/2, ay/2+6, 4, 3, '*' | COLOR_PAIR(2)); // center wheel
+   set_cell(ax/2-10, ay/2+6, 'o' | COLOR_PAIR(2)); // left wheel axis
+   set_cell(ax/2+10, ay/2+6, 'o' | COLOR_PAIR(2)); // right wheel axis
+   set_cell(ax/2, ay/2+6, 'o' | COLOR_PAIR(2)); // center wheel axis
+   set_cell(ax/2-4, ay/2-6, '/'); // steam dome
+   set_cell(ax/2-3, ay/2-6, ACS_S1); // steam dome
+   set_cell(ax/2-2, ay/2-6, '\\'); // steam dome
+   set_cell(ax/2+3, ay/2-8, '^'); // steam whistle
+   set_cell(ax/2+3, ay/2-7, '|'); // steam whistle
+   set_cell(ax/2+3, ay/2-6, '|'); // steam whistle
 
    // get locomotive data from game area
    int sx = 40, sy = 20;
-   int *data = get_cell_area(ax/2-20, ay/2-10, sx, sy, ' ');
+   int *data = get_cell_area(ax/2-sx/2, ay/2-sy/2, sx, sy, ' ');
+   clear_area();
+
+   // copy locomotive data into sprite area
    enable_sprite(1, sx, sy);
    set_sprite_data(1, sx, sy, data);
-   clear_area();
+   delete[] data;
+
+   // create parallax clounds
+   for (int c=0; c<10; c++)
+   {
+      // render parallax clouds into game area
+      for (int i=0; i<3; i++)
+      {
+         int px = ax/2+40*(rnd()-0.5f);
+         int py = ay/2+10*(rnd()-0.5f);
+         int ax = 10+5*rnd();
+         int ay = 3+3*rnd();
+         if (get_cell(px, py) != ' ') continue;
+         render_ellipse(px, py, ax, ay, ' ' | A_REVERSE);
+         flood_fill(px, py, '*' | COLOR_PAIR(4));
+      }
+
+      // get cloud data from game area
+      int cx = 80, cy = 25;
+      int *cloud = get_cell_area(ax/2-cx/2, ay/2-cy/2, cx, cy, ' ');
+      clear_area();
+
+      // copy cloud data into sprite area
+      enable_sprite(2+c, cx, cy);
+      parallax_sprite(2+c, rnd(), 0);
+      background_sprite(2+c);
+      set_sprite_data(2+c, cx, cy, cloud);
+      int px = ax/2+ax*(rnd()-0.5f);
+      int py = ay/2-cy/2+cy*(rnd()-0.5f);
+      center_sprite_position(2+c, px, py);
+      delete[] cloud;
+   }
 
    // game loop
    int ch;

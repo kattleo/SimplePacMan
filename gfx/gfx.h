@@ -22,6 +22,8 @@ void init_gfx();
 
 //! init ASCII GFX color display
 //! * default colors are white, red, green, blue with indices 1-4
+//! * and composite colors yellow, cyan, magenta with indices 5-7
+//! * plus special inverse and black colors with indices 8-9
 void init_color();
 
 //! exit ASCII GFX
@@ -33,10 +35,16 @@ void exit_gfx();
 void set_window(WINDOW *w);
 
 //! use indexed color pair for foreground/background colors of characters
+//! * colors need to be initialized beforehand via init_color()
 //! * 1 = white/black
 //! * 2 = red/black
 //! * 3 = green/black
 //! * 4 = blue/black
+//! * 5 = yellow/black
+//! * 6 = cyan/black
+//! * 7 = magenta/black
+//! * 8 = black/white
+//! * 9 = black/black
 void use_color(int index = 1);
 
 //! use attribute bold
@@ -109,7 +117,18 @@ int get_keycode();
 void cursor_keycode(int keycode,
                     int *dx, unsigned int *dy);
 
-//! helper: allocate string buffer
+//! helper for converting a text string into an ASCII data buffer
+//! * "ch" is the character that represents transparent areas
+//! * "interprete":
+//! ** ^ as overscore
+//! ** # as checker board
+//! ** B as bold attribute
+//! ** digits as color attributes
+//! ** 0 to clear attributes
+int *convert_char_text(const char *text, int sx, int sy,
+                       int ch = -1, bool interprete = false);
+
+//! helper for allocating a temporarily used string buffer
 //! * provides a buffer for a string with at most n characters
 //! * it allocates memory for the n characters plus the terminal nul character
 char *get_string_buffer(int n);

@@ -118,6 +118,18 @@ inline Vec2 mul3v(const Mat3 &m, Vec3 v)
    return(vec2(v3.x*h, v3.y*h));
 }
 
+//! convert x component of 2D vector to rounded int
+inline int vec2_x(Vec2 v)
+{
+   return((int)(v.x+0.5f));
+}
+
+//! convert y component of 2D vector to rounded int
+inline int vec2_y(Vec2 v)
+{
+   return((int)(v.y+0.5f));
+}
+
 //! get current transformation
 Mat3 top();
 

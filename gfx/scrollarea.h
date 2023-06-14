@@ -6,12 +6,19 @@
 #include "gfx.h"
 
 //! set the drawing window
+//! * stdscr is used by default
 void set_drawing_window(WINDOW *w);
 
-//! set the size of the scrollable area
+//! create a scrollable canvas area
+//! * with sx columns and sy rows
+//! * the canvas area contains a single ASCII character per cell
+//! * after canvas area creation we need to
+//!  * define the screen window size via set_window_size
+//!  * define the contents of the canvas area via set_cell, flood_fill etc.
+//!  * and finally render the canvas via redraw_window or center_window
 void set_area_size(int sx, int sy);
 
-//! is a scrollable area available?
+//! is a scrollable canvas area available?
 bool has_area();
 
 //! get the width of the scrollable area
@@ -47,10 +54,10 @@ void set_area_border(int ch = ACS_CKBOARD);
 //! * "ch" is the character used for the window border
 void set_window_border(int ch = ACS_CKBOARD);
 
-//! get the cell character at position (x, y)
+//! get the cell character at position (x, y) of the canvas area
 int get_cell(int x, int y);
 
-//! set the cell at position (x, y) to character ch
+//! set the cell at position (x, y) to character ch of the canvas area
 void set_cell(int x, int y, int ch);
 
 //! set the cell coordinate offset
@@ -62,7 +69,8 @@ void set_cell_offset(int x = 0, int y = 0);
 void set_cell_mode(bool retain = false);
 
 //! get the cell area at top-left position (x, y) with size (sx, sy)
-//! * "ch" is the character used for transparency
+//! * "ch" is the character that represents transparent areas
+//! * returns a newly allocated array of respective size
 int *get_cell_area(int x, int y,
                    int sx, int sy,
                    int ch = -1);
@@ -130,9 +138,11 @@ int get_sprite_num();
 //! * "num" is the number of the sprite
 //! * "sx" and "sy" is the cell area size of the sprite
 //! * "window" determines if the sprite position is area or window relative
+//! * "own" determines if the data provided by set_sprite_data is owned by the user
 void enable_sprite(int num,
                    int sx, int sy,
-                   bool window = false);
+                   bool window = false,
+                   bool own = false);
 
 //! is a sprite overlay enabled?
 //! * "num" is the number of the sprite
@@ -152,8 +162,19 @@ int get_sprite_height(int num);
 //! * by default the sprite is made fully transparent
 void clear_sprite(int num, int ch = -1);
 
-// set the sprite data
-void set_sprite_data(int num, int sx, int sy, const int *data);
+//! set the sprite data
+void set_sprite_data(int num, int sx, int sy, int *data);
+
+//! set the sprite data by text string
+//! * "ch" is the character that represents transparent areas
+//! * "interprete":
+//! ** ^ as overscore
+//! ** # as checker board
+//! ** B as bold attribute
+//! ** digits as color attributes
+//! ** 0 to clear attributes
+void set_sprite_text(int num, const char *text,
+                     int ch = -1, bool interprete = false);
 
 //! fill a sprite cell area
 //! * "num" is the number of the sprite
@@ -194,6 +215,18 @@ void print_sprite_grid_char(int num,
 void print_sprite_grid_text(int num,
                             int x, int y,
                             const char *text);
+
+//! mirror the sprite horizontally
+//! * "num" is the number of the sprite
+//! * "flip" determines whether a slash is replaced with a backslash or vice versa
+void mirror_sprite_horizontal(int num, bool flip = true);
+
+//! mirror the sprite vertically
+//! * "num" is the number of the sprite
+//! * "flip" determines whether
+//!  * a slash is replaced with a backslash or vice versa
+//!  * an underscore is replaced with an overscore or vice versa
+void mirror_sprite_vertical(int num, bool flip = true);
 
 //! scroll the sprite up
 //! * "num" is the number of the sprite
@@ -236,7 +269,15 @@ void show_sprite(int num);
 
 //! make background sprite
 //! * "num" is the number of the sprite
+//! * a background sprite only shows where the canvas area is empty
+//! * an empty area is either transparent or filled with spaces
 void background_sprite(int num);
+
+//! make parallax sprite
+//! * "num" is the number of the sprite
+//! * a parallax sprite scrolls relative to the viewing coordinates
+//! * "dx" and "dy" define the amount of parallax scrolling
+void parallax_sprite(int num, float dx, float dy);
 
 //! disable a sprite
 //! * "num" is the number of the sprite
@@ -245,8 +286,15 @@ void disable_sprite(int num);
 //! disable all sprites
 void disable_sprites();
 
-//! redraw the displayed window at scrollable top-left position (x, y)
+//! redraw the displayed window at top-left position (x, y)
+//! * it is assumed that the displayed window area has been cleared once
+//! * subsequent calls will only update modifications to the canvas area
 void redraw_window(int x, int y);
+
+//! position the displayed window at center position (x, y)
+//! * it is assumed that the displayed window area has been cleared once
+//! * subsequent calls will only update modifications to the canvas area
+void position_window(int x, int y);
 
 //! scroll the displayed window to top-left position (x, y)
 //! * "deltax" and "deltay" is the position delta that triggers scrolling

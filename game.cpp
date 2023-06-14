@@ -5,7 +5,6 @@
 #include "gfx/util.h"
 #include "gfx/scrollarea.h"
 #include "gfx/gridarea.h"
-#include "util.h"
 
 
 static char c;
@@ -59,9 +58,30 @@ void game_init() {
     set_window_size(COLS, LINES);
 
     init_font();
+    init_grid_font();
 
-    render_frame(0, 0, sx-1, sy-1);
+    // create sprites
+   int *sprite[4];
+   const char sprite1[] =   "3/^^^\\"
+                            "|o o|"
+                            "\\/\\/\\";
+   sprite[0] = convert_char_text(sprite1, 10, 4, ' ', true);
+   sprite[2] = convert_char_text(sprite1, 10, 4, ' ', true);
+   sprite[3] = convert_char_text(sprite1, 10, 4, ' ', true);
+   enable_sprite(1, 10, 4, false, true);
+   set_sprite_data(1, 10, 4, sprite[2]);
 
+
+    //init sprite
+    //draw_grid_text(3, 3, "g");
+    //mvaddch(2, 2, 'a');
+    //mvaddch(3, 2, 'b');
+    //fill_cell_area(2, 2, 2, 2, 'a');
+    //int *data = get_cell_area(1, 1, 4, 4, ' ');
+    //enable_sprite(1, 4, 4);
+    //set_sprite_data(1, 4, 4, data);
+    //clear();
+    //refresh();
 
     // init PacMan starting point
     pacman_x = sx/2;
@@ -69,6 +89,8 @@ void game_init() {
 
     ghost_x = 2;
     ghost_y = 2;
+
+    draw_grid_text(2, 2, "g");
 }
 
 // render a single frame
@@ -102,6 +124,7 @@ void render_frame()
     {
         // render game area
         center_window(sx / 2, sy / 2);
+        render_frame(0, 0, sx-1, sy-1);
         refresh();
 
         // Moving PacMan
@@ -110,13 +133,14 @@ void render_frame()
         //Moving Ghost
         move_ghost();
 
+        
+
     }
     else if (state == GAME_OUTRO){
         clear();
         const char text[] = "BYE BYE!";
         int tx = COLS/2;
         int ty = LINES/2;
-        init_grid_font();
         draw_grid_text(ty - get_grid_char_lines()/2, tx - strlen(text)*get_grid_char_cols()/2, text);
 
     }

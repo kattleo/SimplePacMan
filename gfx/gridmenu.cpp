@@ -24,7 +24,7 @@ void set_menu_size(int sx, int sy)
    fontx = get_grid_char_cols();
    fonty = get_grid_char_lines();
 
-   if (menu) delete menu;
+   if (menu) delete[] menu;
    menu = new int[sx*sy];
 
    clear_menu();
@@ -108,6 +108,6 @@ void release_menu()
       sprite = -1;
    }
 
-   if (menu) delete menu;
+   if (menu) delete[] menu;
    menu = NULL;
 }

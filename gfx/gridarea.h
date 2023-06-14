@@ -5,7 +5,14 @@
 
 #include "gfx.h"
 
-//! set the size of the scrollable grid area
+//! create a scrollable grid area
+//! * with sx columns and sy rows
+//! * the grid area contains a single grid char per cell
+//!  * a grid char consists of a grid of 5x3 ASCII characters by default
+//! * after grid area creation we need to
+//!  * define the screen window size via set_grid_window_size
+//!  * define the contents of the grid area via set_grid, flood_fill_grid etc.
+//!  * and finally render the grid via redraw_grid_window or scroll_grid_window
 void set_grid_size(int sx, int sy);
 
 //! get the width of the scrollable grid area
@@ -15,6 +22,7 @@ int get_grid_width();
 int get_grid_height();
 
 //! set the size of the displayed grid window
+//! * the size is defined in terms of grid chars
 void set_grid_window_size(int sx, int sy);
 
 //! is the grid wrapping around or not?
@@ -63,6 +71,7 @@ int count_grid(int ch);
 void replace_grid(int ch, int replace);
 
 //! get the grid cell area at top-left position (x, y) with size (sx, sy)
+//! * returns a newly allocated array of respective size
 int *get_grid_area(int x, int y,
                    int sx, int sy);
 

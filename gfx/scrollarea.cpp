@@ -26,11 +26,16 @@ struct SpriteType
    bool window;
    bool hidden;
    bool background;
+   bool parallax;
+   float dx, dy;
    int *data;
+   bool own;
 };
 
-static const int sprites = 8; // the number of supported sprites
+static const int sprites = 64; // the number of supported sprites
 static SpriteType sprite[sprites] = {{0}}; // the sprite data
+static int sprite_begin = 0; // the begin of the active sprite range
+static int sprite_end = -1; // the end of the active sprite range
 
 // set the drawing window
 void set_drawing_window(WINDOW *w)
@@ -42,7 +47,7 @@ void set_drawing_window(WINDOW *w)
    }
 }
 
-// set the size of the scrollable area
+// create a scrollable canvas area
 void set_area_size(int sx, int sy)
 {
    if (sx < 1 || sy < 1) return;
@@ -50,7 +55,7 @@ void set_area_size(int sx, int sy)
    sizex = sx;
    sizey = sy;
 
-   if (area) delete area;
+   if (area) delete[] area;
    area = new int[sx*sy];
 
    clear_area();
@@ -59,7 +64,7 @@ void set_area_size(int sx, int sy)
    init_grid_font();
 }
 
-// is a scrollable area available?
+// is a scrollable canvas area available?
 bool has_area()
 {
    return(area);
@@ -86,7 +91,7 @@ void set_window_size(int sx, int sy)
    winx = sx;
    winy = sy;
 
-   if (window) delete window;
+   if (window) delete[] window;
    window = new int[winx*winy];
 
    window_change = true;
@@ -492,53 +497,54 @@ void render_ellipse(int xc, int yc, int ax, int ay,
 {
    if (ax <= 0 || ay <= 0) return;
 
+   int dx = ax*ax;
+   int dy = ay*ay;
+   int dx2 = 2*dx;
+   int dy2 = 2*dy;
+
    {
-      int x = ax, y = 0;
-      int dx = ay*ay*(1 - 2*ax), dy = ax*ax;
-      int dx2 = 2*ax*ax, dy2 = 2*ay*ay;
-      int e = 0, ex = dy2*ax, ey = 0;
+      int x = 0, y = ay;
+      int e = dy - dx*ay + (dx+2)/4;
+      int ex = 0, ey = dx2*ay;
 
-      while (ex >= ey)
+      render_points(xc, yc, x, y, ax, ay, aspect, ch);
+
+      while (ex <= ey)
       {
-         render_points(xc, yc, x, y, ax, ay, aspect, ch);
-
-         y++;
-         ey += dx2;
-         e += dy;
-         dy += dx2;
-
-         if (2*e + dx > 0)
+         x++;
+         ex += dy2;
+         if (e >= 0)
          {
-            x--;
-            ex -= dy2;
-            e += dx;
-            dx += dy2;
+            y--;
+            ey -= dx2;
+            e -= ey;
          }
+         e += dy + ex;
+
+         render_points(xc, yc, x, y, ax, ay, aspect, ch);
       }
    }
 
    {
-      int x = 0, y = ay;
-      int dx = ay*ay, dy = ax*ax*(1 - 2*ay);
-      int dx2 = 2*ax*ax, dy2 = 2*ay*ay;
-      int e = 0, ex = 0, ey = dx2*ay;
+      int x = ax, y = 0;
+      int e = dx - dy*ax + (dy+2)/4;
+      int ex = dy2*ax, ey = 0;
 
-      while (ex <= ey)
+      render_points(xc, yc, x, y, ax, ay, aspect, ch);
+
+      while (ex >= ey)
       {
-         render_points(xc, yc, x, y, ax, ay, aspect, ch);
-
-         x++;
-         ex += dy2;
-         e += dx;
-         dx += dy2;
-
-         if (2*e + dy > 0)
+         y++;
+         ey += dx2;
+         if (e >= 0)
          {
-            y--;
-            ey -= dx2;
-            e += dy;
-            dy += dx2;
+            x--;
+            ex -= dy2;
+            e -= ex;
          }
+         e += dx + ey;
+
+         render_points(xc, yc, x, y, ax, ay, aspect, ch);
       }
    }
 }
@@ -588,14 +594,25 @@ int get_sprite_num()
 // enable a sprite overlay
 void enable_sprite(int num,
                    int sx, int sy,
-                   bool window)
+                   bool window,
+                   bool own)
 {
    if (num < 0 || num >= sprites) return;
 
-   if (sprite[num].data)
-      delete sprite[num].data;
+   if (sprite_end < 0)
+   {
+      sprite_begin = sprites - 1;
+      sprite_end = 0;
+   }
 
-   SpriteType s = {0, 0, sx, sy, window, false, false, new int[sx*sy]};
+   if (num < sprite_begin) sprite_begin = num;
+   if (num > sprite_end) sprite_end = num;
+
+   if (sprite[num].data && sprite[num].own)
+      delete[] sprite[num].data;
+
+   SpriteType s = {0, 0, sx, sy, window, false, false, false, 0, 0, NULL, !own};
+   if (s.own) s.data = new int[sx*sy];
    sprite[num] = s;
 
    clear_sprite(num);
@@ -633,25 +650,51 @@ void clear_sprite(int num, int ch)
 
    SpriteType *s = &sprite[num];
 
-   int n = s->sx * s->sy;
+   int n = s->sx*s->sy;
    for (int i=0; i<n; i++)
       s->data[i] = ch;
 }
 
 // set the sprite data
-void set_sprite_data(int num, int sx, int sy, const int *data)
+void set_sprite_data(int num, int sx, int sy, int *data)
 {
    if (num < 0 || num >= sprites) return;
-   if (!sprite[num].data) return;
+   if (!sprite[num].data && sprite[num].own) return;
    if (!data) return;
 
    SpriteType *s = &sprite[num];
 
    if (sx != s->sx || sy != s->sy) return;
 
-   int n = s->sx * s->sy;
-   for (int i=0; i<n; i++)
-      s->data[i] = data[i];
+   if (s->own)
+   {
+      int n = s->sx*s->sy;
+      for (int i=0; i<n; i++)
+         s->data[i] = data[i];
+   }
+   else
+   {
+      s->data = data;
+   }
+}
+
+// set the sprite data by text string
+void set_sprite_text(int num, const char *text,
+                     int ch, bool interprete)
+{
+   if (num < 0 || num >= sprites) return;
+   if (!sprite[num].data) return;
+
+   SpriteType *s = &sprite[num];
+
+   int *data = convert_char_text(text, s->sx, s->sy, ch, interprete);
+
+   if (data)
+   {
+      int n = s->sx*s->sy;
+      for (int i=0; i<n; i++) s->data[i] = data[i];
+      delete[] data;
+   }
 }
 
 // fill a sprite cell area
@@ -762,6 +805,64 @@ void print_sprite_grid_text(int num,
    }
 }
 
+// mirror the sprite horizontally
+void mirror_sprite_horizontal(int num, bool flip)
+{
+   if (num < 0 || num >= sprites) return;
+   if (!sprite[num].data) return;
+
+   SpriteType *s = &sprite[num];
+
+   for (int i=0; i<s->sx/2; i++)
+      for (int j=0; j<s->sy; j++)
+      {
+         int c1 = s->data[i+j*s->sx];
+         int c2 = s->data[s->sx-1-i+j*s->sx];
+
+         if (flip)
+         {
+            if (c1 == '/') c1 = '\\';
+            else if (c1 == '\\') c1 = '/';
+            if (c2 == '/') c2 = '\\';
+            else if (c2 == '\\') c2 = '/';
+         }
+
+         s->data[i+j*s->sx] = c2;
+         s->data[s->sx-1-i+j*s->sx] = c1;
+      }
+}
+
+// mirror the sprite vertically
+void mirror_sprite_vertical(int num, bool flip)
+{
+   if (num < 0 || num >= sprites) return;
+   if (!sprite[num].data) return;
+
+   SpriteType *s = &sprite[num];
+
+   for (int j=0; j<s->sy/2; j++)
+      for (int i=0; i<s->sx; i++)
+      {
+         int c1 = s->data[i+j*s->sx];
+         int c2 = s->data[i+(s->sy-1-j)*s->sx];
+
+         if (flip)
+         {
+            if (c1 == '_') c1 = ACS_S1;
+            else if (c1 == (int)ACS_S1) c1 = '_';
+            else if (c1 == '/') c1 = '\\';
+            else if (c1 == '\\') c1 = '/';
+            if (c2 == '_') c2 = ACS_S1;
+            else if (c2 == (int)ACS_S1) c2 = '_';
+            else if (c2 == '/') c2 = '\\';
+            else if (c2 == '\\') c2 = '/';
+         }
+
+         s->data[i+j*s->sx] = c2;
+         s->data[i+(s->sy-1-j)*s->sx] = c1;
+      }
+}
+
 // scroll the sprite up
 void scroll_sprite_up(int num)
 {
@@ -807,7 +908,7 @@ void scroll_sprite_left(int num)
          s->data[i-1+j*s->sx] = s->data[i+j*s->sx];
 
    for (int j=0; j<s->sy; j++)
-      s->data[s->sx-1+j*s->sy] = -1;
+      s->data[s->sx-1+j*s->sx] = -1;
 }
 
 // scroll the sprite right
@@ -818,12 +919,12 @@ void scroll_sprite_right(int num)
 
    SpriteType *s = &sprite[num];
 
-   for (int i=s->sx-2; i>=0; i++)
+   for (int i=s->sx-2; i>=0; i--)
       for (int j=0; j<s->sy; j++)
          s->data[i+1+j*s->sx] = s->data[i+j*s->sx];
 
    for (int j=0; j<s->sy; j++)
-      s->data[j*s->sy] = -1;
+      s->data[j*s->sx] = -1;
 }
 
 // set the sprite position
@@ -888,15 +989,27 @@ void background_sprite(int num)
    s->background = true;
 }
 
+// make parallax sprite
+void parallax_sprite(int num, float dx, float dy)
+{
+   if (num < 0 || num >= sprites) return;
+
+   SpriteType *s = &sprite[num];
+
+   s->parallax = true;
+   s->dx = dx;
+   s->dy = dy;
+}
+
 // disable a sprite
 void disable_sprite(int num)
 {
    if (num < 0 || num >= sprites) return;
 
-   if (sprite[num].data)
-      delete sprite[num].data;
+   if (sprite[num].data && sprite[num].own)
+      delete[] sprite[num].data;
 
-   SpriteType s = {0, 0, 0, 0, false, false, false, NULL};
+   SpriteType s = {0, 0, 0, 0, false, false, false, false, 0, 0, NULL, false};
    sprite[num] = s;
 }
 
@@ -905,9 +1018,12 @@ void disable_sprites()
 {
    for (int i=0; i<sprites; i++)
       disable_sprite(i);
+
+   sprite_begin = 0;
+   sprite_end = -1;
 }
 
-// redraw the displayed window at scrollable top-left position (x, y)
+// redraw the displayed window at top-left position (x, y)
 void redraw_window(int x, int y)
 {
    if (!area || !window) return;
@@ -926,7 +1042,7 @@ void redraw_window(int x, int y)
          if (ch < 0) ch = ' ';
 
          // override visible character with sprite data
-         for (int k=0; k<sprites; k++)
+         for (int k=sprite_begin; k<=sprite_end; k++)
          {
             SpriteType *s = &sprite[k];
 
@@ -941,6 +1057,12 @@ void redraw_window(int x, int y)
                {
                   ax += x;
                   ay += y;
+
+                  if (s->parallax)
+                  {
+                     ax += s->dx * x;
+                     ay += s->dy * y;
+                  }
                }
 
                if (ax >= 0 && ax < s->sx && ay >= 0 && ay < s->sy)
@@ -994,6 +1116,12 @@ void redraw_window(int x, int y)
    scrolly = y;
 }
 
+// position the displayed window at center position (x, y)
+void position_window(int x, int y)
+{
+   redraw_window(x - winx/2, y - winy/2);
+}
+
 // scroll the displayed window to top-left position (x, y)
 void scroll_window(int x, int y, int deltax, int deltay, bool stop)
 {
@@ -1037,10 +1165,10 @@ void get_window(int *x, int *y)
 // release allocated memory
 void release_area()
 {
-   if (area) delete area;
+   if (area) delete[] area;
    area = NULL;
 
-   if (window) delete window;
+   if (window) delete[] window;
    window = NULL;
 
    for (int i=0; i<sprites; i++)

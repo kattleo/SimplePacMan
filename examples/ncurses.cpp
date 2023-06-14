@@ -3,9 +3,10 @@
 int main()
 {
    initscr();
+   curs_set(FALSE);
    clear();
 
-   move(10, 10);
+   move(LINES/2, COLS/2 - 7);
    printw("hello, ncurses!");
    refresh();
 

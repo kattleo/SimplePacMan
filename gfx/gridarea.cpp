@@ -28,7 +28,7 @@ static bool wraparound = false; // the grid is wrapping around or not
 void init_anims();
 void release_anims();
 
-// set the size of the scrollable grid area
+// create a scrollable grid area
 void set_grid_size(int sx, int sy)
 {
    if (sx < 1 || sy < 1) return;
@@ -41,16 +41,16 @@ void set_grid_size(int sx, int sy)
 
    set_area_size(gridx * fontx, gridy *fonty);
 
-   if (grid) delete grid;
+   if (grid) delete[] grid;
    grid = new int[sx*sy];
 
-   if (last) delete last;
+   if (last) delete[] last;
    last = new int[sx*sy];
 
-   if (extra) delete extra;
+   if (extra) delete[] extra;
    extra = new int[sx*sy];
 
-   if (anim) delete anim;
+   if (anim) delete[] anim;
    anim = new int[sx*sy];
 
    clear_grid();
@@ -558,16 +558,16 @@ void release_grid()
 {
    release_area();
 
-   if (grid) delete grid;
+   if (grid) delete[] grid;
    grid = NULL;
 
-   if (last) delete last;
+   if (last) delete[] last;
    last = NULL;
 
-   if (extra) delete extra;
+   if (extra) delete[] extra;
    extra = NULL;
 
-   if (anim) delete anim;
+   if (anim) delete[] anim;
    anim = NULL;
 
    release_anims();
@@ -594,7 +594,7 @@ void set_grid_animation(int ch, int num, const int *data)
    if (ga_anims)
    {
       if (ga_anims[ch].sequence)
-         delete ga_anims[ch].sequence;
+         delete[] ga_anims[ch].sequence;
 
       ga_anims[ch].sequence = new int[num];
       for (int i=0; i<num; i++)
@@ -613,7 +613,7 @@ void set_grid_animation_string(int ch, const char *str)
    if (ga_anims)
    {
       if (ga_anims[ch].sequence)
-         delete ga_anims[ch].sequence;
+         delete[] ga_anims[ch].sequence;
 
       ga_anims[ch].sequence = new int[num];
       for (int i=0; i<num; i++)
@@ -630,9 +630,9 @@ void release_anims()
    {
       for (int i=0; i<ga_num; i++)
          if (ga_anims[i].sequence)
-            delete ga_anims[i].sequence;
+            delete[] ga_anims[i].sequence;
 
-      delete ga_anims;
+      delete[] ga_anims;
       ga_anims = NULL;
    }
 }

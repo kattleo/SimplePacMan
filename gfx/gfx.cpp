@@ -2,7 +2,6 @@
 // (c) 2020 by Stefan Roettger
 
 #include "gfx.h"
-#include "math2d.h"
 #include "gridfont.h"
 
 static WINDOW *W = NULL; // the drawing window
@@ -26,10 +25,15 @@ void init_gfx()
 void init_color()
 {
    start_color(); // enable color display
-   init_pair(1, COLOR_WHITE, COLOR_BLACK); // 1st fore-/background color pair with index #1
-   init_pair(2, COLOR_RED, COLOR_BLACK);   // 2nd fore-/background color pair with index #2
-   init_pair(3, COLOR_GREEN, COLOR_BLACK); // 3rd fore-/background color pair with index #3
-   init_pair(4, COLOR_BLUE, COLOR_BLACK);  // 4th fore-/background color pair with index #4
+   init_pair(1, COLOR_WHITE, COLOR_BLACK);   // 1st fore-/background color pair with index #1
+   init_pair(2, COLOR_RED, COLOR_BLACK);     // 2nd fore-/background color pair with index #2
+   init_pair(3, COLOR_GREEN, COLOR_BLACK);   // 3rd fore-/background color pair with index #3
+   init_pair(4, COLOR_BLUE, COLOR_BLACK);    // 4th fore-/background color pair with index #4
+   init_pair(5, COLOR_YELLOW, COLOR_BLACK);  // 5th fore-/background color pair with index #5
+   init_pair(6, COLOR_CYAN, COLOR_BLACK);    // 6th fore-/background color pair with index #6
+   init_pair(7, COLOR_MAGENTA, COLOR_BLACK); // 7th fore-/background color pair with index #7
+   init_pair(8, COLOR_BLACK, COLOR_WHITE);   // 8th fore-/background color pair with index #8
+   init_pair(9, COLOR_BLACK, COLOR_BLACK);   // 9th fore-/background color pair with index #9
    bkgd(COLOR_PAIR(1));
 }
 
@@ -40,7 +44,7 @@ void exit_gfx()
    endwin();
 
    // deallocate string buffer
-   delete string_buffer;
+   delete[] string_buffer;
    string_buffer = NULL;
    buffer_size = 0;
 }
@@ -448,53 +452,54 @@ void draw_points(int yc, int xc, int y, int x,
 void draw_ellipse(int yc, int xc, int ay, int ax,
                   int ch, double aspect)
 {
+   int dx = ax*ax;
+   int dy = ay*ay;
+   int dx2 = 2*dx;
+   int dy2 = 2*dy;
+
    {
-      int x = ax, y = 0;
-      int dx = ay*ay*(1 - 2*ax), dy = ax*ax;
-      int dx2 = 2*ax*ax, dy2 = 2*ay*ay;
-      int e = 0, ex = dy2*ax, ey = 0;
+      int x = 0, y = ay;
+      int e = dy - dx*ay + dx/4;
+      int ex = 0, ey = dx2*ay;
 
-      while (ex >= ey)
+      draw_points(xc, yc, x, y, ax, ay, aspect, ch);
+
+      while (ex <= ey)
       {
-         draw_points(yc, xc, y, x, ay, ax, aspect, ch);
-
-         y++;
-         ey += dx2;
-         e += dy;
-         dy += dx2;
-
-         if (2*e + dx > 0)
+         x++;
+         ex += dy2;
+         if (e >= 0)
          {
-            x--;
-            ex -= dy2;
-            e += dx;
-            dx += dy2;
+            y--;
+            ey -= dx2;
+            e -= ey;
          }
+         e += dy + ex;
+
+         draw_points(xc, yc, x, y, ax, ay, aspect, ch);
       }
    }
 
    {
-      int x = 0, y = ay;
-      int dx = ay*ay, dy = ax*ax*(1 - 2*ay);
-      int dx2 = 2*ax*ax, dy2 = 2*ay*ay;
-      int e = 0, ex = 0, ey = dx2*ay;
+      int x = ax, y = 0;
+      int e = dx - dy*ax + dy/4;
+      int ex = dy2*ax, ey = 0;
 
-      while (ex <= ey)
+      draw_points(xc, yc, x, y, ax, ay, aspect, ch);
+
+      while (ex >= ey)
       {
-         draw_points(yc, xc, y, x, ay, ax, aspect, ch);
-
-         x++;
-         ex += dy2;
-         e += dx;
-         dx += dy2;
-
-         if (2*e + dy > 0)
+         y++;
+         ey += dx2;
+         if (e >= 0)
          {
-            y--;
-            ey -= dx2;
-            e += dy;
-            dy += dx2;
+            x--;
+            ex -= dy2;
+            e -= ex;
          }
+         e += dx + ey;
+
+         draw_points(xc, yc, x, y, ax, ay, aspect, ch);
       }
    }
 }
@@ -541,7 +546,52 @@ void cursor_keycode(int keycode,
    }
 }
 
-// helper: allocate string buffer
+// helper for converting a text string into an ASCII data buffer
+int *convert_char_text(const char *text, int sx, int sy,
+                       int ch, bool interprete)
+{
+   if (!text) return(NULL);
+
+   int count = 0;
+   int attr = 0;
+
+   int n = sx*sy;
+   int *data = new int[n];
+
+   while (*text != '\0')
+   {
+      int c = *text++;
+
+      if (interprete)
+         switch (c)
+         {
+            case '^': c = ACS_S1; break;
+            case '#': c = ACS_CKBOARD; break;
+            case 'B': attr |= A_BOLD; continue;
+            case '1': attr |= COLOR_PAIR(1); continue;
+            case '2': attr |= COLOR_PAIR(2); continue;
+            case '3': attr |= COLOR_PAIR(3); continue;
+            case '4': attr |= COLOR_PAIR(4); continue;
+            case '5': attr |= COLOR_PAIR(5); continue;
+            case '6': attr |= COLOR_PAIR(6); continue;
+            case '7': attr |= COLOR_PAIR(7); continue;
+            case '8': attr |= COLOR_PAIR(8); continue;
+            case '9': attr |= COLOR_PAIR(9); continue;
+            case '0': attr = 0; continue;
+         }
+
+      if (c == ch) c = -1;
+      data[count++] = c | attr;
+
+      if (count == n)
+         return(data);
+   }
+
+   delete[] data;
+   return(NULL);
+}
+
+// helper for allocating a temporarily used string buffer
 char *get_string_buffer(int n)
 {
    n++; // for terminating nul character
@@ -549,7 +599,7 @@ char *get_string_buffer(int n)
    if (buffer_size == 0) buffer_size = 1;
    while (n > buffer_size) buffer_size *= 2;
 
-   if (string_buffer) delete string_buffer;
+   if (string_buffer) delete[] string_buffer;
    string_buffer = new char[buffer_size];
 
    return(string_buffer);

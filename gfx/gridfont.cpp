@@ -24,7 +24,7 @@ void init_grid_font(int cols, int lines)
       gc_lines = lines;
    }
 
-   if (font) delete font;
+   if (font) delete[] font;
    font = new int *[gc_num];
 
    for (int i=0; i<gc_num; i++)
@@ -66,34 +66,13 @@ void set_grid_char_text(int ch, const char *text, bool interprete)
    if (!font) return;
    if (ch < 0 || ch >= gc_num) return;
 
-   int count = 0;
-   int attr = 0;
+   int *data = convert_char_text(text, gc_cols, gc_lines, -1, interprete);
 
-   while (*text != '\0')
+   if (data)
    {
-      int c = *text++;
-
-      if (interprete)
-         switch (c)
-         {
-            case '^': c = ACS_S1; break;
-            case 'B': attr |= A_BOLD; continue;
-            case '1': attr |= COLOR_PAIR(1); continue;
-            case '2': attr |= COLOR_PAIR(2); continue;
-            case '3': attr |= COLOR_PAIR(3); continue;
-            case '4': attr |= COLOR_PAIR(4); continue;
-            case '5': attr |= COLOR_PAIR(5); continue;
-            case '6': attr |= COLOR_PAIR(6); continue;
-            case '7': attr |= COLOR_PAIR(7); continue;
-            case '8': attr |= COLOR_PAIR(8); continue;
-            case '9': attr |= COLOR_PAIR(9); continue;
-            case '0': attr = 0; continue;
-         }
-
-      font[ch][count++] = c | attr;
-
-      if (count == gc_cols * gc_lines)
-         break;
+      int n = gc_cols*gc_lines;
+      for (int i=0; i<n; i++) font[ch][i] = data[i];
+      delete[] data;
    }
 }
 
@@ -112,9 +91,9 @@ void release_grid_font()
    if (font)
    {
       for (int i=0; i<gc_num; i++)
-         delete font[i];
+         delete[] font[i];
 
-      delete font;
+      delete[] font;
       font = NULL;
    }
 }

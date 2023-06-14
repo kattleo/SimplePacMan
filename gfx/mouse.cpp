@@ -1,4 +1,7 @@
-#include "gfx.h"
+// mouse input for NCurses
+// (c) 2023 by Stefan Roettger
+
+#include "mouse.h"
 
 // init mouse reporting
 void mouse_init()
