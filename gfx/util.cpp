@@ -176,12 +176,6 @@ void log_clear()
 
 
 void init_font(){
-    init_grid_font();
-      set_grid_char_text('g',
-                      "3/^^^\\"
-                      "|o o|"
-                      "\\/\\/\\", true);
-
       set_grid_char_text('o',
                            "     "
                            "     "
@@ -230,3 +224,4 @@ void init_font(){
                       "#####", true);
 
    }
+

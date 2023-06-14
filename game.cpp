@@ -9,8 +9,8 @@
 
 static char c;
 
-static int sx = 60;
-static int sy = 30;
+static int sx = 90;
+static int sy = 45;
 
 static double pacman_x;
 static double pacman_y;
@@ -30,8 +30,6 @@ static int frame = 0;
 
 // game state: elapsed time
 static double elapsed = 0;
-
-static int max_x = 0, max_y = 0;
 // definition of game phases
 enum GAME_STATE
 {
@@ -53,7 +51,6 @@ void move_pacman();
 void move_ghost();
 
 void game_init() {
-    sx = 90, sy = 45;
     set_area_size(sx, sy);
     set_window_size(COLS, LINES);
 
@@ -63,25 +60,33 @@ void game_init() {
 
     init_font();
     init_grid_font();
+    init_color();
 
     // create sprites
        // create sprites
    int *ghostsprite[4];
-   const char sprite1[] =   "/^^^\\"
-                            "|o o|"
-                            "\\/\\/\\";
+   const char sprite1[] =   " .-. "
+                            "| OO|"
+                            "\'xxx\'";
+
    ghostsprite[0] = convert_char_text(sprite1, 5, 3, ' ', true);
    enable_sprite(1, 5, 3, false, true);
    set_sprite_data(1, 5, 3, ghostsprite[0]);
    
-//    int *pacsprite[3];
-//    const char sprite2[] =   "  ^^ "
-//                             "/  o\\"    
-//                             "|   <"     
-//                             "\\___/";
-//    pacsprite[0] = convert_char_text(sprite2, 5, 4, ' ', true);
-//    enable_sprite(2, 5, 4, false, true);
-//    set_sprite_data(2, 5, 4, pacsprite[2]);
+   int *pacsprite[4];
+   const char sprite2[] =   "t.--.t"
+                            "/ _.-\'"    
+                            "\\  \'-."     
+                            "t\'--\'t";
+
+
+                               
+      
+      
+        
+   pacsprite[0] = convert_char_text(sprite2, 6, 4, 't', true);
+   enable_sprite(2, 6, 4, false, true);
+   set_sprite_data(2, 6, 4, pacsprite[0]);
 
     // init PacMan starting point
     pacman_x = sx/2;
@@ -98,26 +103,26 @@ void render_frame()
     // render the actual frame depending on the state
     if (state == GAME_INTRO)
     {
-//INTRO start
-   // print centered text with 5x3 grid font
+    //INTRO start
+    // print centered text with 5x3 grid font
         const char text[] = "PACMAN";
         int tx = COLS/2;
         int ty = LINES/2;
-        init_grid_font();
+        use_color(5);
         draw_grid_text(ty - get_grid_char_lines()/2, tx - strlen(text)*get_grid_char_cols()/2, text);
 
-        // print help text
+        // print help and start text
         const char help[] = "press q to quit!";
-        const char starting[] = "press s to start!";
-        use_attr_bold(); // enable bold attribute
-        use_attr_blink(); // enable blink attribute
-        use_color(2); // index 2 equals red
-        mvprintw(max_y-2, 1, help);
-        mvprintw(max_y-2, max_x - 20, starting);
-        use_color(); // default equals white
-        use_attr_normal(); // disable all attributes
+        const char starting[] = "press s to start!"; 
+        use_color(2);
+        use_attr_blink();
+        use_attr_bold();
+        mvprintw(sy-5, COLS - strlen(text)*get_grid_char_cols()/2 - 5, help);
+        mvprintw(sy-5, 5, starting);
+        use_attr_normal();
+        draw_line(sy - 10, 0, sy - 10, COLS, '-');
+        draw_line(sy - 11, 0, sy - 11, COLS, '-');
 
-        //INTRO end
     }
     else if (state == GAME_LOOP)
     {
@@ -125,9 +130,7 @@ void render_frame()
         center_window(sx / 2, sy / 2);
         render_frame(0, 0, sx-1, sy-1);
 
-        // //flood fil
-        // redraw_grid_window(sx/2, sy/2);
-        // flood_fill_grid(0, 0, 'o');
+        
 
         refresh();
 
@@ -137,7 +140,8 @@ void render_frame()
         //Moving Ghost
         move_ghost();
         
-        //center_sprite_position(1, 10, 10);
+        //flood fill
+        //flood_fill_grid(0, 0, 'o');
     }
     else if (state == GAME_OUTRO){
         clear();
@@ -145,22 +149,15 @@ void render_frame()
         int tx = COLS/2;
         int ty = LINES/2;
         draw_grid_text(ty - get_grid_char_lines()/2, tx - strlen(text)*get_grid_char_cols()/2, text);
-
-    }
+}
     refresh();
 }
 
 void move_pacman() {
-    if(get_cell(pacman_x + pacman_vel_x, pacman_y + pacman_vel_y) != ' ') {
+    if(get_cell(pacman_x + pacman_vel_x * 3, pacman_y + pacman_vel_y * 2) != ' ') {
         pacman_vel_x = -pacman_vel_x;
         pacman_vel_y = -pacman_vel_y;
     }
-    pacman_x += pacman_vel_x;
-    pacman_y += pacman_vel_y;
-
-    //center_sprite_position(2, pacman_x, pacman_y);
-    set_cell(pacman_x - pacman_vel_x, pacman_y - pacman_vel_y, ' ');
-    set_cell(pacman_x, pacman_y, 'a');
     
     switch(c) {
         case 'w':
@@ -180,6 +177,11 @@ void move_pacman() {
             pacman_vel_x = 1;
             break;
     }
+
+    pacman_x += pacman_vel_x;
+    pacman_y += pacman_vel_y;
+
+    center_sprite_position(2, pacman_x, pacman_y);
 }
 
 void move_ghost() {
@@ -209,9 +211,6 @@ void move_ghost() {
     ghost_y += ghost_vel_y;
 
     center_sprite_position(1, ghost_x, ghost_y);
-    //set_cell(ghost_x - ghost_vel_x, ghost_y - ghost_vel_y, ' ');
-    //set_cell(ghost_x, ghost_y, 'g');
-
 }
 
 
@@ -292,3 +291,8 @@ int get_state(){
         return 1;
     }
 }
+
+
+     
+
+
