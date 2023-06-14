@@ -6,12 +6,22 @@
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
-
 #include "gfx.h"
+#include "gridfont.h"
+#include "sound.h"
+#include "gridarea.h"
+#include "gridmenu.h"
+#include "math2d.h"
+#include "mouse.h"
+#include "polygon.h"
 #include "scrollarea.h"
 
 // sleep for a period of time given in milli seconds
-
+void msleep(float ms)
+{
+   int us = ms*1000; // micro secs
+   usleep(us);
+}
 
 // generate a random float number in the range [0,1[
 float rnd()
@@ -163,3 +173,60 @@ void log_clear()
       log_line = 0;
    }
 }
+
+
+void init_font(){
+    init_grid_font();
+      set_grid_char_text('g',
+                      "3/^^^\\"
+                      "|o o|"
+                      "\\/\\/\\", true);
+
+      set_grid_char_text('o',
+                           "     "
+                           "     "
+                           "  o  ");
+      set_grid_char_text('1',
+                           "     "
+                           "     "
+                           " o   ");
+      set_grid_char_text('2',
+                           "     "
+                           "o    "
+                           "     ");
+      set_grid_char_text('3',
+                           "     "
+                           "o    "
+                           "     ");
+      set_grid_char_text('4',
+                           " o   "
+                           "     "
+                           "     ");
+      set_grid_char_text('5',
+                           "  o  "
+                           "     "
+                           "     ");
+      set_grid_char_text('6',
+                           "   o "
+                           "     "
+                           "     ");
+      set_grid_char_text('7',
+                           "     "
+                           "    o"
+                           "     ");
+      set_grid_char_text('8',
+                           "     "
+                           "    o"
+                           "     ");
+      set_grid_char_text('9',
+                           "     "
+                           "     "
+                           "   o ");
+      set_grid_animation_string('o', "o123456789");
+
+      set_grid_char_text('#',
+                      "#####"
+                      "#####"
+                      "#####", true);
+
+   }
