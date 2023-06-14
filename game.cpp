@@ -53,12 +53,12 @@ void move_pacman();
 void move_ghost();
 
 void game_init() {
-    sx = 80, sy = 40;
+    sx = 90, sy = 45;
     set_area_size(sx, sy);
     set_window_size(COLS, LINES);
 
     //filling background
-    set_grid_size(sx,sy);
+    //set_grid_size(sx,sy);
 
 
     init_font();
@@ -66,36 +66,22 @@ void game_init() {
 
     // create sprites
        // create sprites
-   int *sprite[4];
+   int *ghostsprite[4];
    const char sprite1[] =   "/^^^\\"
                             "|o o|"
                             "\\/\\/\\";
-   sprite[0] = convert_char_text(sprite1, 5, 3, ' ', true);
+   ghostsprite[0] = convert_char_text(sprite1, 5, 3, ' ', true);
    enable_sprite(1, 5, 3, false, true);
-   set_sprite_data(1, 5, 3, sprite[0]);
+   set_sprite_data(1, 5, 3, ghostsprite[0]);
    
-//    int *sprite[3];
-//    const char sprite1[] =   "/^^^\\"
-//                             "|o o|"
-//                             "\\/\\/\\";
-//    sprite[0] = convert_char_text(sprite1, 10, 4, ' ', true);
-//    sprite[1] = convert_char_text(sprite1, 10, 4, ' ', true);
-//    sprite[2] = convert_char_text(sprite1, 10, 4, ' ', true);
-//    enable_sprite(1, 10, 4, false, true);
-//    set_sprite_data(1, 10, 4, sprite[2]);
-
-
-    //init sprite
-    //draw_grid_text(3, 3, "g");
-    //mvaddch(2, 2, 'a');
-    //mvaddch(3, 2, 'b');
-
-    //fill_cell_area(2, 2, 2, 2, 'a');
-    //int *data = get_cell_area(1, 1, 4, 4, ' ');
-    //enable_sprite(1, 4, 4);
-    //set_sprite_data(1, 4, 4, data);
-    //clear();
-    //refresh();
+//    int *pacsprite[3];
+//    const char sprite2[] =   "  ^^ "
+//                             "/  o\\"    
+//                             "|   <"     
+//                             "\\___/";
+//    pacsprite[0] = convert_char_text(sprite2, 5, 4, ' ', true);
+//    enable_sprite(2, 5, 4, false, true);
+//    set_sprite_data(2, 5, 4, pacsprite[2]);
 
     // init PacMan starting point
     pacman_x = sx/2;
@@ -172,6 +158,7 @@ void move_pacman() {
     pacman_x += pacman_vel_x;
     pacman_y += pacman_vel_y;
 
+    //center_sprite_position(2, pacman_x, pacman_y);
     set_cell(pacman_x - pacman_vel_x, pacman_y - pacman_vel_y, ' ');
     set_cell(pacman_x, pacman_y, 'a');
     
