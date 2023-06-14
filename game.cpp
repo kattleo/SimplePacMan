@@ -61,21 +61,31 @@ void game_init() {
     init_grid_font();
 
     // create sprites
+       // create sprites
    int *sprite[4];
-   const char sprite1[] =   "3/^^^\\"
+   const char sprite1[] =   "/^^^\\"
                             "|o o|"
                             "\\/\\/\\";
-   sprite[0] = convert_char_text(sprite1, 10, 4, ' ', true);
-   sprite[2] = convert_char_text(sprite1, 10, 4, ' ', true);
-   sprite[3] = convert_char_text(sprite1, 10, 4, ' ', true);
-   enable_sprite(1, 10, 4, false, true);
-   set_sprite_data(1, 10, 4, sprite[2]);
+   sprite[0] = convert_char_text(sprite1, 5, 3, ' ', true);
+   enable_sprite(1, 5, 3, false, true);
+   set_sprite_data(1, 5, 3, sprite[0]);
+   
+//    int *sprite[3];
+//    const char sprite1[] =   "/^^^\\"
+//                             "|o o|"
+//                             "\\/\\/\\";
+//    sprite[0] = convert_char_text(sprite1, 10, 4, ' ', true);
+//    sprite[1] = convert_char_text(sprite1, 10, 4, ' ', true);
+//    sprite[2] = convert_char_text(sprite1, 10, 4, ' ', true);
+//    enable_sprite(1, 10, 4, false, true);
+//    set_sprite_data(1, 10, 4, sprite[2]);
 
 
     //init sprite
     //draw_grid_text(3, 3, "g");
     //mvaddch(2, 2, 'a');
     //mvaddch(3, 2, 'b');
+
     //fill_cell_area(2, 2, 2, 2, 'a');
     //int *data = get_cell_area(1, 1, 4, 4, ' ');
     //enable_sprite(1, 4, 4);
@@ -89,8 +99,6 @@ void game_init() {
 
     ghost_x = 2;
     ghost_y = 2;
-
-    draw_grid_text(2, 2, "g");
 }
 
 // render a single frame
@@ -132,9 +140,8 @@ void render_frame()
 
         //Moving Ghost
         move_ghost();
-
         
-
+        //center_sprite_position(1, 10, 10);
     }
     else if (state == GAME_OUTRO){
         clear();
@@ -179,7 +186,7 @@ void move_pacman() {
 }
 
 void move_ghost() {
-    if(get_cell(ghost_x + ghost_vel_x, ghost_y + ghost_vel_y) != ' ') {
+    if(get_cell(ghost_x + ghost_vel_x * 3, ghost_y + ghost_vel_y * 2) != ' ') {
         if(ghost_vel_x != 0) {
             ghost_vel_x = 0;
         float random = rnd();
@@ -188,6 +195,7 @@ void move_ghost() {
         } else {
             ghost_vel_y = 1;
         }  
+
         } else if(ghost_vel_y != 0) {
             ghost_vel_y = 0;
         float random = rnd();
@@ -203,8 +211,9 @@ void move_ghost() {
     ghost_x += ghost_vel_x;
     ghost_y += ghost_vel_y;
 
-    set_cell(ghost_x - ghost_vel_x, ghost_y - ghost_vel_y, ' ');
-    set_cell(ghost_x, ghost_y, 'g');
+    center_sprite_position(1, ghost_x, ghost_y);
+    //set_cell(ghost_x - ghost_vel_x, ghost_y - ghost_vel_y, ' ');
+    //set_cell(ghost_x, ghost_y, 'g');
 
 }
 
