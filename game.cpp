@@ -6,21 +6,132 @@
 #include "gfx/scrollarea.h"
 #include "gfx/gridarea.h"
 
-
-static char c;
-
 static int sx = 90;
 static int sy = 45;
 
-static double pacman_x;
-static double pacman_y;
-static double pacman_vel_x;
-static double pacman_vel_y;
+static char c;
 
-static double ghost_x;
-static double ghost_y;
-static double ghost_vel_x = 1;
-static double ghost_vel_y = 0;
+class PacMan {
+private:
+    int pacman_sprite_id;
+    double pacman_x;
+    double pacman_y;
+    double pacman_vel_x;
+    double pacman_vel_y;
+
+    void init_pacman_sprite(int id) {
+        int *pacsprite[4];
+        const char sprite2[] =  "t.--.t"
+                                "/ _.-\'"    
+                                "\\  \'-."     
+                                "t\'--\'t";
+
+        pacsprite[0] = convert_char_text(sprite2, 6, 4, 't', true);
+        enable_sprite(id, 6, 4, false, true);
+        set_sprite_data(id, 6, 4, pacsprite[0]);
+    }
+
+public:
+    PacMan(int id, double x, double y) {
+        init_pacman_sprite(id);
+        pacman_sprite_id = id;
+
+        pacman_x = x;
+        pacman_y = y;
+        pacman_vel_x = 1;
+        pacman_vel_y = 0;
+
+    }
+
+    void move() {
+    if(get_cell(pacman_x + pacman_vel_x * 3, pacman_y + pacman_vel_y * 2) != ' ') {
+        pacman_vel_x = -pacman_vel_x;
+        pacman_vel_y = -pacman_vel_y;
+    }
+    
+    switch(c) {
+        case 'w':
+            pacman_vel_y = -1;
+            pacman_vel_x = 0;
+            break;
+        case 'a':
+            pacman_vel_y = 0;
+            pacman_vel_x = -1;
+            break;
+        case 's':
+            pacman_vel_y = 1;
+            pacman_vel_x = 0;
+            break;
+        case 'd':
+            pacman_vel_y = 0;
+            pacman_vel_x = 1;
+            break;
+    }
+
+    pacman_x += pacman_vel_x;
+    pacman_y += pacman_vel_y;
+
+    center_sprite_position(pacman_sprite_id, pacman_x, pacman_y);
+}
+};
+
+class Ghost {
+private:
+    int ghost_sprite_id;
+    double ghost_x;
+    double ghost_y;
+    double ghost_vel_x;
+    double ghost_vel_y;
+
+    void init_ghost_sprite(int id) {
+        int *ghostsprite[4];
+        const char sprite1[] =  " .-. "
+                            "| OO|"
+                            "\'xxx\'";
+        ghostsprite[0] = convert_char_text(sprite1, 5, 3, ' ', true);
+        enable_sprite(id, 5, 3, false, true);
+        set_sprite_data(id, 5, 3, ghostsprite[0]);
+    }
+        
+public:
+    Ghost(int id, double x, double y) {
+        init_ghost_sprite(id);
+        ghost_sprite_id = id;
+
+        ghost_x = x;
+        ghost_y = y;
+        ghost_vel_x = 1;
+        ghost_vel_y = 0;
+
+    }
+
+    void move() {
+        if (get_cell(ghost_x + ghost_vel_x * 3, ghost_y + ghost_vel_y * 2) != ' ') {
+            if (ghost_vel_x != 0) {
+                ghost_vel_x = 0;
+                float random = rnd();
+                if (random < 0.5) {
+                    ghost_vel_y = -1;
+                } else {
+                    ghost_vel_y = 1;
+                }
+            } else if (ghost_vel_y != 0) {
+                ghost_vel_y = 0;
+                float random = rnd();
+                if (random < 0.5) {
+                    ghost_vel_x = -1;
+                } else {
+                    ghost_vel_x = 1;
+                }
+            }
+        }
+
+        ghost_x += ghost_vel_x;
+        ghost_y += ghost_vel_y;
+
+        center_sprite_position(ghost_sprite_id, ghost_x, ghost_y);
+    }
+};
 
 // game constant: frames per second
 static float fps = 10;
@@ -41,14 +152,9 @@ enum GAME_STATE
 // game state: actual game phase
 static GAME_STATE state = GAME_INTRO;
 
-// prototype of getter function
-double get_elapsed();
-
-int get_state();
-
-void move_pacman();
-
-void move_ghost();
+static PacMan pacman(1, sx/2, sy/2);
+static Ghost ghost1(2, 2, 2);
+static Ghost ghost2(3, 10, 10);
 
 void game_init() {
     set_area_size(sx, sy);
@@ -61,40 +167,6 @@ void game_init() {
     init_font();
     init_grid_font();
     init_color();
-
-    // create sprites
-       // create sprites
-   int *ghostsprite[4];
-   const char sprite1[] =   " .-. "
-                            "| OO|"
-                            "\'xxx\'";
-
-   ghostsprite[0] = convert_char_text(sprite1, 5, 3, ' ', true);
-   enable_sprite(1, 5, 3, false, true);
-   set_sprite_data(1, 5, 3, ghostsprite[0]);
-   
-   int *pacsprite[4];
-   const char sprite2[] =   "t.--.t"
-                            "/ _.-\'"    
-                            "\\  \'-."     
-                            "t\'--\'t";
-
-
-                               
-      
-      
-        
-   pacsprite[0] = convert_char_text(sprite2, 6, 4, 't', true);
-   enable_sprite(2, 6, 4, false, true);
-   set_sprite_data(2, 6, 4, pacsprite[0]);
-
-    // init PacMan starting point
-    pacman_x = sx/2;
-    pacman_y = sy/2;
-
-    ghost_x = 2;
-    ghost_y = 2;
-
 }
 
 // render a single frame
@@ -130,15 +202,14 @@ void render_frame()
         center_window(sx / 2, sy / 2);
         render_frame(0, 0, sx-1, sy-1);
 
-        
-
         refresh();
 
         // Moving PacMan
-        move_pacman();
+        pacman.move();
 
         //Moving Ghost
-        move_ghost();
+        ghost1.move();
+        ghost2.move();
         
         //flood fill
         //flood_fill_grid(0, 0, 'o');
@@ -152,67 +223,6 @@ void render_frame()
 }
     refresh();
 }
-
-void move_pacman() {
-    if(get_cell(pacman_x + pacman_vel_x * 3, pacman_y + pacman_vel_y * 2) != ' ') {
-        pacman_vel_x = -pacman_vel_x;
-        pacman_vel_y = -pacman_vel_y;
-    }
-    
-    switch(c) {
-        case 'w':
-            pacman_vel_y = -1;
-            pacman_vel_x = 0;
-            break;
-        case 'a':
-            pacman_vel_y = 0;
-            pacman_vel_x = -1;
-            break;
-        case 's':
-            pacman_vel_y = 1;
-            pacman_vel_x = 0;
-            break;
-        case 'd':
-            pacman_vel_y = 0;
-            pacman_vel_x = 1;
-            break;
-    }
-
-    pacman_x += pacman_vel_x;
-    pacman_y += pacman_vel_y;
-
-    center_sprite_position(2, pacman_x, pacman_y);
-}
-
-void move_ghost() {
-    if(get_cell(ghost_x + ghost_vel_x * 3, ghost_y + ghost_vel_y * 2) != ' ') {
-        if(ghost_vel_x != 0) {
-            ghost_vel_x = 0;
-        float random = rnd();
-        if(random < 0.5) {
-            ghost_vel_y = -1;
-        } else {
-            ghost_vel_y = 1;
-        }  
-
-        } else if(ghost_vel_y != 0) {
-            ghost_vel_y = 0;
-        float random = rnd();
-        if(random < 0.5) {
-            ghost_vel_x = -1;
-        } else {
-            ghost_vel_x = 1;
-        }  
-        }
-    }
-    
-
-    ghost_x += ghost_vel_x;
-    ghost_y += ghost_vel_y;
-
-    center_sprite_position(1, ghost_x, ghost_y);
-}
-
 
 // update the game state
 // * 'q' quits the game
