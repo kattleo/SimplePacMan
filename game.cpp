@@ -45,8 +45,8 @@ public:
 
     void move() {
     if(get_cell(pacman_x + pacman_vel_x * 3, pacman_y + pacman_vel_y * 2) != ' ') {
-        pacman_vel_x = -pacman_vel_x;
-        pacman_vel_y = -pacman_vel_y;
+        pacman_vel_x = 0;
+        pacman_vel_y = 0;
     }
     
     switch(c) {
@@ -106,7 +106,7 @@ public:
     }
 
     void move() {
-        if (get_cell(ghost_x + ghost_vel_x * 3, ghost_y + ghost_vel_y * 2) != ' ') {
+        if (get_cell(ghost_x + ghost_vel_x * 3, ghost_y + ghost_vel_y * 3) != ' ') {
             if (ghost_vel_x != 0) {
                 ghost_vel_x = 0;
                 float random = rnd();
@@ -202,6 +202,8 @@ void render_frame()
         center_window(sx / 2, sy / 2);
         render_frame(0, 0, sx-1, sy-1);
 
+        draw_borders();
+
         refresh();
 
         // Moving PacMan
@@ -222,6 +224,10 @@ void render_frame()
         draw_grid_text(ty - get_grid_char_lines()/2, tx - strlen(text)*get_grid_char_cols()/2, text);
 }
     refresh();
+}
+
+void draw_borders() {
+    draw_grid_text(10, 10, "#");
 }
 
 // update the game state
