@@ -87,7 +87,7 @@ private:
         int *ghostsprite[4];
         const char sprite1[] =  " .-. "
                             "| OO|"
-                            "\'xxx\'";
+                            "\'xxx\'";       
         ghostsprite[0] = convert_char_text(sprite1, 5, 3, ' ', true);
         enable_sprite(id, 5, 3, false, true);
         set_sprite_data(id, 5, 3, ghostsprite[0]);
@@ -153,13 +153,14 @@ enum GAME_STATE
 static GAME_STATE state = GAME_INTRO;
 
 static PacMan pacman(1, sx/2, sy/2);
-static Ghost ghost1(2, 2, 2);
-static Ghost ghost2(3, 10, 10);
+static Ghost ghost1(2, sx/2, sy/2);
+static Ghost ghost2(3, sx/2, sy/2);
 
 void game_init() {
     set_area_size(sx, sy);
     set_window_size(COLS, LINES);
 
+    draw_borders();
     //filling background
     //set_grid_size(sx,sy);
 
@@ -167,6 +168,32 @@ void game_init() {
     init_font();
     init_grid_font();
     init_color();
+}
+
+static int pacman_width = 8;
+static int pacman_height = 5;
+
+void draw_borders() {
+    //Render Top Left Quarter
+    //Top Cube
+    //render_line(sx/2 - pacman_width/2, 0, sx/2 - pacman_width/2, pacman_height);
+    //render_line(sx/2 - pacman_width/2, pacman_height, sx/2, pacman_height);
+
+    //DEMO: Corners
+    render_line(pacman_width, pacman_height, sx/2 - pacman_width /2, pacman_height);
+    render_line(pacman_width, pacman_height, pacman_width, sy/2- pacman_height /2);
+
+    render_line(pacman_width, pacman_height, sx/2 - pacman_width /2, pacman_height);
+    render_line(pacman_width, pacman_height, pacman_width, sy/2- pacman_height /2);
+
+    render_line(pacman_width, pacman_height, sx/2 - pacman_width /2, pacman_height);
+    render_line(pacman_width, pacman_height, pacman_width, sy/2- pacman_height /2);
+
+    render_line(pacman_width, pacman_height, sx/2 - pacman_width /2, pacman_height);
+    render_line(pacman_width, pacman_height, pacman_width, sy/2- pacman_height /2);
+
+
+    
 }
 
 // render a single frame
@@ -202,8 +229,6 @@ void render_frame()
         center_window(sx / 2, sy / 2);
         render_frame(0, 0, sx-1, sy-1);
 
-        draw_borders();
-
         refresh();
 
         // Moving PacMan
@@ -224,10 +249,6 @@ void render_frame()
         draw_grid_text(ty - get_grid_char_lines()/2, tx - strlen(text)*get_grid_char_cols()/2, text);
 }
     refresh();
-}
-
-void draw_borders() {
-    draw_grid_text(10, 10, "#");
 }
 
 // update the game state
