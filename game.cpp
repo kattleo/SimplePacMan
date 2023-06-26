@@ -176,21 +176,23 @@ static int pacman_height = 5;
 void draw_borders() {
     //Render Top Left Quarter
     //Top Cube
-    //render_line(sx/2 - pacman_width/2, 0, sx/2 - pacman_width/2, pacman_height);
-    //render_line(sx/2 - pacman_width/2, pacman_height, sx/2, pacman_height);
+    render_line(sx/2 - pacman_width/2, 0, sx/2 - pacman_width/2, pacman_height);
+    render_line(sx/2 - pacman_width/2, pacman_height, sx/2, pacman_height);
 
-    //DEMO: Corners
-    render_line(pacman_width, pacman_height, sx/2 - pacman_width /2, pacman_height);
+    //Left-Corner
+    render_line(pacman_width, pacman_height, pacman_width + sx / 5, pacman_height);
     render_line(pacman_width, pacman_height, pacman_width, sy/2- pacman_height /2);
+    render_line(pacman_width, sy/2- pacman_height /2, pacman_width + sx / 10,  sy/2- pacman_height /2);
 
-    render_line(pacman_width, pacman_height, sx/2 - pacman_width /2, pacman_height);
-    render_line(pacman_width, pacman_height, pacman_width, sy/2- pacman_height /2);
+    //Middle T
+    render_line(sx/2, pacman_height * 2, sx/2 - (2 * pacman_width), pacman_height*2);
+    render_line(sx/2, pacman_height * 2, sx/2, sy/3);
+    enable_sprite(8, sx/2, sy/2, false, true);
+    mirror_sprite_horizontal(8, true);
+    // render_line(pacman_width, pacman_height, pacman_width, sy/2- pacman_height /2);
 
-    render_line(pacman_width, pacman_height, sx/2 - pacman_width /2, pacman_height);
-    render_line(pacman_width, pacman_height, pacman_width, sy/2- pacman_height /2);
-
-    render_line(pacman_width, pacman_height, sx/2 - pacman_width /2, pacman_height);
-    render_line(pacman_width, pacman_height, pacman_width, sy/2- pacman_height /2);
+    // render_line(pacman_width, pacman_height, sx/2 - pacman_width /2, pacman_height);
+    // render_line(pacman_width, pacman_height, pacman_width, sy/2- pacman_height /2);
 
 
     
