@@ -187,6 +187,7 @@ void draw_borders() {
     //Middle T
     render_line(sx/2, pacman_height * 2, sx/2 - (2 * pacman_width), pacman_height*2);
     render_line(sx/2, pacman_height * 2, sx/2, sy/3);
+    
     enable_sprite(8, sx/2, sy/2, false, true);
     mirror_sprite_horizontal(8, true);
     // render_line(pacman_width, pacman_height, pacman_width, sy/2- pacman_height /2);
