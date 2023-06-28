@@ -38,7 +38,7 @@ public:
 
         pacman_x = x;
         pacman_y = y;
-        pacman_vel_x = 1;
+        pacman_vel_x = 0;
         pacman_vel_y = 0;
 
     }
@@ -177,24 +177,42 @@ void draw_borders() {
     //Render Top Left Quarter
     //Top Cube
     render_line(sx/2 - pacman_width/2, 0, sx/2 - pacman_width/2, pacman_height);
-    render_line(sx/2 - pacman_width/2, pacman_height, sx/2, pacman_height);
+    render_line(sx/2 - pacman_width/2, pacman_height, sx/2 + pacman_width/2, pacman_height);
+    render_line(sx/2 + pacman_width/2, pacman_height,sx/2 + pacman_width/2, 0);
 
-    //Left-Corner
+    //Top Left Corner
     render_line(pacman_width, pacman_height, pacman_width + sx / 5, pacman_height);
     render_line(pacman_width, pacman_height, pacman_width, sy/2- pacman_height /2);
     render_line(pacman_width, sy/2- pacman_height /2, pacman_width + sx / 10,  sy/2- pacman_height /2);
 
     //Middle T
-    render_line(sx/2, pacman_height * 2, sx/2 - (2 * pacman_width), pacman_height*2);
+    render_line( sx/2 - (2 * pacman_width), pacman_height*2, sx/2 + (2 * pacman_width), pacman_height * 2);
     render_line(sx/2, pacman_height * 2, sx/2, sy/3);
-    
-    enable_sprite(8, sx/2, sy/2, false, true);
-    mirror_sprite_horizontal(8, true);
-    // render_line(pacman_width, pacman_height, pacman_width, sy/2- pacman_height /2);
 
-    // render_line(pacman_width, pacman_height, sx/2 - pacman_width /2, pacman_height);
-    // render_line(pacman_width, pacman_height, pacman_width, sy/2- pacman_height /2);
+    //Render Top Right Quarter
+    //Top Right Corner
+    render_line(sx - pacman_width, pacman_height, sx - pacman_width - sx/5, pacman_height);
+    render_line(sx - pacman_width, pacman_height, sx - pacman_width, sy/2- pacman_height /2);
+    render_line(sx - pacman_width, sy/2- pacman_height /2, sx - pacman_width - sx / 10,  sy/2- pacman_height /2);
 
+    //Bottom Left Corner
+    render_line(pacman_width, sy/2 + pacman_height, pacman_width + sx / 10, sy/2 + pacman_height);
+    render_line(pacman_width, sy/2 + pacman_height, pacman_width, sy - pacman_height);
+    render_line(pacman_width, sy - pacman_height, pacman_width + sx / 5, sy - pacman_height);
+
+    //Bottom Right Corner
+    render_line(sx-pacman_width, sy/2 + pacman_height, sx - pacman_width - sx / 10, sy/2 + pacman_height);
+    render_line(sx - pacman_width, sy/2 + pacman_height, sx - pacman_width, sy - pacman_height);
+    render_line(sx - pacman_width, sy - pacman_height,sx - pacman_width - sx / 5, sy - pacman_height);
+
+    //Bottom Cube
+    render_line(sx/2 - pacman_width/2, sy, sx/2 - pacman_width/2, sy - pacman_height);
+    render_line(sx/2 - pacman_width/2, sy - pacman_height, sx/2 + pacman_width/2, sy - pacman_height);
+    render_line(sx/2 + pacman_width/2, sy - pacman_height,sx/2 + pacman_width/2, sy);
+
+    //Bottom T
+    render_line(sx/2 - (2 * pacman_width), sy - pacman_height*2, sx/2 + (2 * pacman_width), sy - pacman_height * 2);
+    render_line(sx/2, sy - pacman_height * 2 - 1, sx/2, sy - sy/3);
 
     
 }
