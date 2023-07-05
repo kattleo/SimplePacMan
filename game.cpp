@@ -16,7 +16,7 @@ private:
     int sprite_id;
     double x;
     double y;
-    int lifes;
+    int lives;
     int width;
     int height;
     double vel_x;
@@ -43,7 +43,7 @@ public:
         y = pacman_y;
         vel_x = 0;
         vel_y = 0;
-        lifes = 3;
+        lives = 3;
         width = 8;
         height = 5;
 
@@ -97,13 +97,13 @@ public:
         return y;
     }
 
-    int get_lifes() {
-        return lifes;
+    int get_lives() {
+        return lives;
     }
 
     // setter functions
-    void decrease_lifes() {
-        lifes -= 1;
+    void decrease_lives() {
+        lives -= 1;
     }
 
 };
@@ -193,7 +193,7 @@ public:
 
         // handling colission with PacMan
         if (pacman.get_x() == x && pacman.get_y() == y) {
-            pacman.decrease_lifes();
+            pacman.decrease_lives();
         }
 
         x += vel_x;
@@ -328,12 +328,12 @@ void render_frame()
         ghost3.move();
         ghost4.move();
         
-        // Displaying PacMan lifes
-        const char original_string[] = "Pacman lifes: ";
+        // Displaying PacMan lives
+        const char original_string[] = "Pacman lives: ";
 
         // Int to Str
         char value_string[2];
-        snprintf(value_string, sizeof(value_string), "%d", pacman.get_lifes());
+        snprintf(value_string, sizeof(value_string), "%d", pacman.get_lives());
 
         // Size for new String
         const int newSize = strlen(original_string) + strlen(value_string) + 1;
@@ -372,7 +372,7 @@ bool update_state()
     else if (state == GAME_LOOP)
     {   
         
-        if (c == 'q' || pacman.get_lifes() == 0){
+        if (c == 'q' || pacman.get_lives() == 0){
             state = GAME_OUTRO;
             outtime = get_elapsed() + 3;
             }
