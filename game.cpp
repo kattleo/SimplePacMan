@@ -333,7 +333,7 @@ void render_frame()
 
         // Int to Str
         char value_string[2];
-        sprintf(value_string, "%d", pacman.get_lifes());
+        snprintf(value_string, sizeof(value_string), "%d", pacman.get_lifes());
 
         // Size for new String
         const int newSize = strlen(original_string) + strlen(value_string) + 1;
