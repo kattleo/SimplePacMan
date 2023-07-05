@@ -13,11 +13,14 @@ static char c;
 
 class PacMan {
 private:
-    int pacman_sprite_id;
-    double pacman_x;
-    double pacman_y;
-    double pacman_vel_x;
-    double pacman_vel_y;
+    int sprite_id;
+    double x;
+    double y;
+    int lifes;
+    int width;
+    int height;
+    double vel_x;
+    double vel_y;
 
     void init_pacman_sprite(int id) {
         int *pacsprite[4];
@@ -32,56 +35,88 @@ private:
     }
 
 public:
-    PacMan(int id, double x, double y) {
+    PacMan(int id, double pacman_x, double pacman_y) {
         init_pacman_sprite(id);
-        pacman_sprite_id = id;
+        sprite_id = id;
 
-        pacman_x = x;
-        pacman_y = y;
-        pacman_vel_x = 0;
-        pacman_vel_y = 0;
+        x = pacman_x;
+        y = pacman_y;
+        vel_x = 0;
+        vel_y = 0;
+        lifes = 3;
+        width = 8;
+        height = 5;
 
     }
 
     void move() {
-    if(get_cell(pacman_x + pacman_vel_x * 3, pacman_y + pacman_vel_y * 2) != ' ') {
-        pacman_vel_x = 0;
-        pacman_vel_y = 0;
+    if(get_cell(x + vel_x * 3, y + vel_y * 2) != ' ') {
+        vel_x = 0;
+        vel_y = 0;
     }
     
     switch(c) {
         case 'w':
-            pacman_vel_y = -1;
-            pacman_vel_x = 0;
+            vel_y = -1;
+            vel_x = 0;
             break;
         case 'a':
-            pacman_vel_y = 0;
-            pacman_vel_x = -1;
+            vel_y = 0;
+            vel_x = -1;
             break;
         case 's':
-            pacman_vel_y = 1;
-            pacman_vel_x = 0;
+            vel_y = 1;
+            vel_x = 0;
             break;
         case 'd':
-            pacman_vel_y = 0;
-            pacman_vel_x = 1;
+            vel_y = 0;
+            vel_x = 1;
             break;
     }
 
-    pacman_x += pacman_vel_x;
-    pacman_y += pacman_vel_y;
+    x += vel_x;
+    y += vel_y;
 
-    center_sprite_position(pacman_sprite_id, pacman_x, pacman_y);
+    center_sprite_position(sprite_id, x, y);
 }
+
+    // getter functions
+    int get_width() {
+        return width;
+    }
+
+    int get_height() {
+        return height;
+    }
+
+    int get_x() {
+        return x;
+    }
+
+    int get_y() {
+        return y;
+    }
+
+    int get_lifes() {
+        return lifes;
+    }
+
+    // setter functions
+    void decrease_lifes() {
+        lifes -= 1;
+    }
+
 };
+
+PacMan pacman(1, sx/2, sy/2);
 
 class Ghost {
 private:
-    int ghost_sprite_id;
-    double ghost_x;
-    double ghost_y;
-    double ghost_vel_x;
-    double ghost_vel_y;
+    int sprite_id;
+    double x;
+    double y;
+    double vel_x;
+    double vel_y;
 
     void init_ghost_sprite(int id) {
         int *ghostsprite[4];
@@ -94,42 +129,77 @@ private:
     }
         
 public:
-    Ghost(int id, double x, double y) {
+    Ghost(int id, double ghost_x, double ghost_y, int ghost_vel_x, int ghost_vel_y) {
         init_ghost_sprite(id);
-        ghost_sprite_id = id;
-
-        ghost_x = x;
-        ghost_y = y;
-        ghost_vel_x = 1;
-        ghost_vel_y = 0;
-
+        sprite_id = id;
+        x = ghost_x;
+        y = ghost_y;
+        vel_x = ghost_vel_x;
+        vel_y = ghost_vel_y;
     }
 
     void move() {
-        if (get_cell(ghost_x + ghost_vel_x * 3, ghost_y + ghost_vel_y * 3) != ' ') {
-            if (ghost_vel_x != 0) {
-                ghost_vel_x = 0;
-                float random = rnd();
-                if (random < 0.5) {
-                    ghost_vel_y = -1;
-                } else {
-                    ghost_vel_y = 1;
+        // handling Border movement
+        // handling x axis
+        if(vel_x != 0) {
+            if(get_cell(x + vel_x * 3, y) != ' ') {
+                // case: Both ghost top and bottom are free
+                if(get_cell(x, y + vel_y * 3) == ' ' &&
+                get_cell(x, y - vel_y * 3) == ' ') {
+                    float random = rnd();
+                    if (random < 0.5) {
+                    vel_y = -1;
+                    } else {
+                    vel_y = 1;
+                    }
                 }
-            } else if (ghost_vel_y != 0) {
-                ghost_vel_y = 0;
-                float random = rnd();
-                if (random < 0.5) {
-                    ghost_vel_x = -1;
-                } else {
-                    ghost_vel_x = 1;
+                // case: Ghost top is free
+                else if(get_cell(x, y - vel_y * 3) == ' ') {
+                    vel_y = 1;
                 }
+                // case: Ghost bottom is free
+                else if(get_cell(x, y + vel_y * 3) == ' ') {
+                    vel_y = -1;
+                }
+                vel_x = 0;
             }
         }
 
-        ghost_x += ghost_vel_x;
-        ghost_y += ghost_vel_y;
+        // handling y axis
+        if(vel_y != 0) {
+            if(get_cell(x, y + vel_y * 3) != ' ') {
+                // case: Both ghost left and right are free
+                if(get_cell(x + vel_x * 3, y) == ' ' &&
+                get_cell(x - vel_x * 3, y) == ' ') {
+                    float random = rnd();
+                    if (random < 0.5) {
+                    vel_x = -1;
+                    } else {
+                    vel_x = 1;
+                    }
+                }
+                // case: Ghost left is free
+                else if(get_cell(x - vel_x * 3, y) == ' ') {
+                    vel_x = -1;
+                }
+                // case: Ghost bottom is free
+                else if(get_cell(x + vel_x * 3, y) == ' ') {
+                    vel_x = 1;
+                }
+                vel_y = 0;
+            }
+            
+        }
 
-        center_sprite_position(ghost_sprite_id, ghost_x, ghost_y);
+        // handling colission with PacMan
+        if (pacman.get_x() == x && pacman.get_y() == y) {
+            pacman.decrease_lifes();
+        }
+
+        x += vel_x;
+        y += vel_y;
+
+        center_sprite_position(sprite_id, x, y);
     }
 };
 
@@ -152,28 +222,27 @@ enum GAME_STATE
 // game state: actual game phase
 static GAME_STATE state = GAME_INTRO;
 
-static PacMan pacman(1, sx/2, sy/2);
-static Ghost ghost1(2, sx/2, sy/2);
-static Ghost ghost2(3, sx/2, sy/2);
+static Ghost ghost1(2, sx/2, sy/2, 1, 0);
+static Ghost ghost2(3, sx/2, sy/2, 0, -1);
+static Ghost ghost3(4, sx/2, sy/2,-1, 0);
+static Ghost ghost4(5, sx/2, sy/2, 0, 1);
 
 void game_init() {
     set_area_size(sx, sy);
     set_window_size(COLS, LINES);
 
     draw_borders();
-    //filling background
-    //set_grid_size(sx,sy);
-
 
     init_font();
     init_grid_font();
     init_color();
 }
 
-static int pacman_width = 8;
-static int pacman_height = 5;
 
 void draw_borders() {
+    static int pacman_width = pacman.get_width();
+    static int pacman_height = pacman.get_height();
+
     //Render Top Left Quarter
     //Top Cube
     render_line(sx/2 - pacman_width/2, 0, sx/2 - pacman_width/2, pacman_height);
@@ -213,8 +282,6 @@ void draw_borders() {
     //Bottom T
     render_line(sx/2 - (2 * pacman_width), sy - pacman_height*2, sx/2 + (2 * pacman_width), sy - pacman_height * 2);
     render_line(sx/2, sy - pacman_height * 2 - 1, sx/2, sy - sy/3);
-
-    
 }
 
 // render a single frame
@@ -233,12 +300,12 @@ void render_frame()
 
         // print help and start text
         const char help[] = "press q to quit!";
-        const char starting[] = "press s to start!"; 
+        const char start[] = "press s to start!"; 
         use_color(2);
         use_attr_blink();
         use_attr_bold();
         mvprintw(sy-5, COLS - strlen(text)*get_grid_char_cols()/2 - 5, help);
-        mvprintw(sy-5, 5, starting);
+        mvprintw(sy-5, 5, start);
         use_attr_normal();
         draw_line(sy - 10, 0, sy - 10, COLS, '-');
         draw_line(sy - 11, 0, sy - 11, COLS, '-');
@@ -255,12 +322,28 @@ void render_frame()
         // Moving PacMan
         pacman.move();
 
-        //Moving Ghost
+        //Moving Ghosts
         ghost1.move();
         ghost2.move();
+        ghost3.move();
+        ghost4.move();
         
-        //flood fill
-        //flood_fill_grid(0, 0, 'o');
+        // Displaying PacMan lifes
+        const char original_string[] = "Pacman lifes: ";
+
+        // Int to Str
+        char value_string[2];
+        sprintf(value_string, "%d", pacman.get_lifes());
+
+        // Size for new String
+        const int newSize = strlen(original_string) + strlen(value_string) + 1;
+
+        // Creating new String
+        char* result_string = (char*)malloc(newSize * sizeof(char));
+        strcpy(result_string, original_string);
+        strcat(result_string, value_string);
+
+        mvprintw(sy/2, 0, result_string);
     }
     else if (state == GAME_OUTRO){
         clear();
@@ -280,7 +363,6 @@ bool update_state()
     // state check cascade
     if (state == GAME_INTRO)
     {
-        
         if (c == 's'){
             state = GAME_LOOP;
             clear();
@@ -290,7 +372,7 @@ bool update_state()
     else if (state == GAME_LOOP)
     {   
         
-        if (c == 'q'){
+        if (c == 'q' || pacman.get_lifes() == 0){
             state = GAME_OUTRO;
             outtime = get_elapsed() + 3;
             }
